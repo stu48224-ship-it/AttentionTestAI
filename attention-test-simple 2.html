@@ -19,7 +19,6 @@
   }
   *{box-sizing:border-box; margin:0; padding:0;}
   
-  /* ปรับปรุง Body ให้รองรับการเลื่อนหน้าจอ (Scroll) ทุกขนาดจอ */
   body{
     background: radial-gradient(1200px 800px at 50% -10%, #14201f 0%, var(--bg) 60%);
     color: var(--text);
@@ -61,16 +60,19 @@
   @keyframes pulse{ 0%,100%{opacity:1;} 50%{opacity:0.4;} }
   .status{ font-family: var(--mono); font-size: 11px; color: var(--dim); }
 
-  /* ปรับความสูง Stage ให้ไม่กินพื้นที่เกินไป และยืดหยุ่นได้ */
+  /* แก้ไข: ย้ายตารางมาใช้ CSS ประมวลผลผ่าน GPU โดยตรงเพื่อเพิ่ม FPS */
   .stage{ 
     position: relative; 
-    background: #08100F; 
+    background-color: #08100F;
+    background-image: 
+      linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+    background-size: 40px 40px;
     height: 480px; 
     max-height: 70vh;
   }
   #stageCanvas{ width:100%; height:100%; display:block; cursor:crosshair; }
 
-  /* จัดระเบียบ หน้าแรก (Overlay) ให้อ่านง่าย มีระเบียบ รองรับการ Scroll ภายในกล่องได้ */
   .overlay{
     position: absolute; inset:0;
     display: flex; align-items: center; justify-content: flex-start;
@@ -101,7 +103,6 @@
   button:hover{ transform: translateY(-1px); filter: brightness(1.08); }
   button.ghost{ background: transparent; border: 1px solid var(--line); color: var(--text); }
 
-  /* กล่องกรอกข้อมูลที่จัดระเบียบใหม่ */
   .input-card {
     background: rgba(255,255,255,0.02);
     border: 1px solid var(--line);
@@ -219,7 +220,6 @@
     color: var(--teal); letter-spacing:0.05em; text-shadow: 0 1px 2px #000;
   }
 
-  /* Responsive styling สำหรับมือถือ */
   @media (max-width: 480px) {
     body { padding: 12px 8px; }
     .header { padding: 14px 16px; }
@@ -248,7 +248,6 @@
       <video id="camVideo" autoplay muted playsinline></video>
     </div>
 
-    <!-- ปรับแต่ง UI หน้าแรกให้กระชับ โดดเด่น และอ่านง่าย -->
     <div class="overlay" id="introOverlay">
       <div class="big">พร้อมทดสอบหรือยัง?</div>
       
@@ -427,8 +426,12 @@ let targetTimer = null;
 let userAge = null;
 let ageBand = getAgeBand(18);
 
+// ตัวแปรเสริมสำหรับการ Optimize DOM Updates
+let lastTimeStr = "";
+let lastCamStr = "";
+
 const stageCanvas = document.getElementById('stageCanvas');
-const stageCtx = stageCanvas.getContext('2d');
+const stageCtx = stageCanvas.getContext('2d', { alpha: false }); // ปิด alpha พื้นหลังเพิ่มความเร็ว
 
 function resizeCanvas(){
   const rect = stageCanvas.parentElement.getBoundingClientRect();
@@ -480,12 +483,18 @@ function onFaceResults(results){
     if (!cameraActive){
       cameraActive = true;
       document.getElementById('calibratingOverlay').style.display = 'none';
-      document.getElementById('camStatus').textContent = 'ตรวจพบใบหน้า';
+      if(lastCamStr !== 'ตรวจพบใบหน้า'){
+        document.getElementById('camStatus').textContent = 'ตรวจพบใบหน้า';
+        lastCamStr = 'ตรวจพบใบหน้า';
+      }
       beginTest();
     }
   } else {
     latestLandmarks = null;
-    if (cameraActive) document.getElementById('camStatus').textContent = 'ไม่พบใบหน้าชั่วคราว';
+    if (cameraActive && lastCamStr !== 'ไม่พบใบหน้าชั่วคราว') {
+        document.getElementById('camStatus').textContent = 'ไม่พบใบหน้าชั่วคราว';
+        lastCamStr = 'ไม่พบใบหน้าชั่วคราว';
+    }
   }
 }
 
@@ -542,13 +551,19 @@ function beginTest(){
   gazeSamples = [];
   noseXSamples = [];
   noseYSamples = [];
+  
+  // รีเซ็ตค่า Tracking
+  lastTimeStr = "";
+  lastCamStr = cameraWanted ? (cameraActive ? 'ตรวจพบใบหน้า' : 'กำลังเชื่อมต่อ...') : 'ไม่ได้ใช้';
+
   document.getElementById('liveStrip').style.display = 'flex';
   document.getElementById('hitCount').textContent = '0';
   document.getElementById('targetCount').textContent = '0';
   document.getElementById('falseCount').textContent = '0';
   document.getElementById('missClickCount').textContent = '0';
-  document.getElementById('camStatus').textContent = cameraWanted ? (cameraActive ? 'ตรวจพบใบหน้า' : 'กำลังเชื่อมต่อ...') : 'ไม่ได้ใช้';
+  document.getElementById('camStatus').textContent = lastCamStr;
   document.getElementById('statusText').innerHTML = '<span class="status-dot live" id="statusDot"></span>กำลังทดสอบ';
+  
   scheduleNextTarget();
   requestAnimationFrame(tick);
 }
@@ -599,14 +614,23 @@ function tick(now){
   if (!testRunning) return;
   const elapsed = now - testStartTime;
   const remaining = Math.max(0, TEST_DURATION_MS - elapsed);
-  document.getElementById('timeLeft').textContent = (remaining / 1000).toFixed(1) + 's';
+  
+  // อัปเดตเวลาเฉพาะเมื่อเลขทศนิยมหลักแรกเปลี่ยน (ลดภาระ DOM)
+  const timeStr = (remaining / 1000).toFixed(1) + 's';
+  if (timeStr !== lastTimeStr) {
+    document.getElementById('timeLeft').textContent = timeStr;
+    lastTimeStr = timeStr;
+  }
 
   dot.angle += 0.018;
   dot.x = 0.5 + 0.36 * Math.sin(dot.angle * 1.3);
   dot.y = 0.5 + 0.30 * Math.sin(dot.angle * 0.9 + 1.1);
 
   if (cameraActive && latestLandmarks){
-    document.getElementById('camStatus').textContent = 'ตรวจพบใบหน้า';
+    if (lastCamStr !== 'ตรวจพบใบหน้า'){
+        document.getElementById('camStatus').textContent = 'ตรวจพบใบหน้า';
+        lastCamStr = 'ตรวจพบใบหน้า';
+    }
     const earL = eyeAspectRatio(latestLandmarks, LEFT_EYE);
     const earR = eyeAspectRatio(latestLandmarks, RIGHT_EYE);
     const earAvg = (earL + earR) / 2;
@@ -622,7 +646,10 @@ function tick(now){
     noseXSamples.push(nose.x);
     noseYSamples.push(nose.y);
   } else if (cameraWanted && cameraActive){
-    document.getElementById('camStatus').textContent = 'ไม่พบใบหน้าชั่วคราว';
+    if (lastCamStr !== 'ไม่พบใบหน้าชั่วคราว'){
+        document.getElementById('camStatus').textContent = 'ไม่พบใบหน้าชั่วคราว';
+        lastCamStr = 'ไม่พบใบหน้าชั่วคราว';
+    }
   }
 
   drawStage();
@@ -636,25 +663,22 @@ function tick(now){
 
 function drawStage(){
   const w = stageCanvas.width, h = stageCanvas.height;
-  stageCtx.clearRect(0, 0, w, h);
-
-  stageCtx.strokeStyle = 'rgba(255,255,255,0.04)';
-  stageCtx.lineWidth = 1;
-  for (let gx = 0; gx < w; gx += 40){ stageCtx.beginPath(); stageCtx.moveTo(gx,0); stageCtx.lineTo(gx,h); stageCtx.stroke(); }
-  for (let gy = 0; gy < h; gy += 40){ stageCtx.beginPath(); stageCtx.moveTo(0,gy); stageCtx.lineTo(w,gy); stageCtx.stroke(); }
+  stageCtx.clearRect(0, 0, w, h); // เคลียร์เฉพาะจุด (ใช้สีโปร่งใสเพราะเรามี Background รองไว้ที่ CSS)
 
   const cx = dot.x * w, cy = dot.y * h;
   const color = dot.isTarget ? '#F2A65A' : '#2DD9C4';
-  const glow = dot.isTarget ? 26 : 16;
-
-  stageCtx.save();
-  stageCtx.shadowColor = color;
-  stageCtx.shadowBlur = glow;
+  
+  // ปรับไปใช้วงกลมโปร่งแสงจำลองความสว่างแทน shadowBlur ที่ทำให้กระตุก
+  stageCtx.globalAlpha = 0.15;
   stageCtx.fillStyle = color;
+  stageCtx.beginPath();
+  stageCtx.arc(cx, cy, dot.isTarget ? 30 : 20, 0, Math.PI * 2);
+  stageCtx.fill();
+
+  stageCtx.globalAlpha = 1.0;
   stageCtx.beginPath();
   stageCtx.arc(cx, cy, dot.isTarget ? 16 : 11, 0, Math.PI * 2);
   stageCtx.fill();
-  stageCtx.restore();
 }
 
 /* =========================================================
@@ -1035,4 +1059,3 @@ resizeCanvas();
 </script>
 </body>
 </html>
-
