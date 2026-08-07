@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <title>Test getUserMedia (optimized)</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <style>
+    body { margin: 0; display: flex; align-items: center; justify-content: center; height: 100vh; background: #111; color: #fff; }
+    video { max-width: 100%; height: auto; background: #000; }
+  </style>
+</head>
+<body>
+  <video id="webcam" autoplay playsinline muted></video>
+
+  <script>
+  // ---------- CONFIG ----------
+  const MAX_PROCESS_FPS = 15; // throttle processing to ~15 FPS
+  // ----------------------------
+
+  // FPS counter (console)
+  (function startFPSCounter() {
+    let frames = 0, last = performance.now();
+    function tick() {
+      frames++;
+      const now = performance.now();
+      if (now - last >= 1000) {
+        console.log('Render FPS:', frames);
+        frames = 0;
+        last = now;
+      }
+      requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  })();
+
+  // Create a worker from inline string (so you can use this single HTML file)
+  function createProcessorWorker() {
+    const workerSrc = `
+      self.onmessage = async (e) => {
+        if (!e.data || e.data.type !== 'frame') return;
+        const bitmap = e.data.bitmap;
+        try {
+          if (typeof OffscreenCanvas !== 'undefined') {
+            const w = bitmap.width, h = bitmap.height;
+            const oc = new OffscreenCanvas(w, h);
+            const ctx = oc.getContext('2d');
+            ctx.drawImage(bitmap, 0, 0, w, h);
+            // very cheap processing example: sample center pixel color
+            const cx = Math.floor(w/2), cy = Math.floor(h/2);
+            const img = ctx.getImageData(cx, cy, 1, 1).data;
+            self.postMessage({ type: 'result', centerColor: [img[0], img[1], img[2]] });
+          } else {
+            // fallback: no OffscreenCanvas
+            self.postMessage({ type: 'result', note: 'no OffscreenCanvas' });
+          }
+        } catch (err) {
+          self.postMessage({ type: 'error', message: err.message });
+        } finally {
+          // bitmap was transferred
+        }
+      };
+    `;
+    const blob = new Blob([workerSrc], { type: 'application/javascript' });
+    return new Worker(URL.createObjectURL(blob));
+  }
+
+  // Start throttled frame processor: uses requestVideoFrameCallback if available or rAF fallback.
+  function startFrameProcessor(videoEl, worker, opts = {}) {
+    const maxFPS = opts.maxProcessFPS || MAX_PROCESS_FPS;
+    const msPer = 1000 / maxFPS;
+    let last = 0;
+    let running = true;
+
+    async function makeBitmap() {
+      try {
+        return await createImageBitmap(videoEl);
+      } catch (e) {
+        return null;
+      }
+    }
+
+    if (videoEl.requestVideoFrameCallback) {
+      const cb = async (now, meta) => {
+        if (!running) return;
+        const t = performance.now();
+        if (t - last >= msPer) {
+          last = t;
+          const bitmap = await makeBitmap();
+          if (bitmap) worker.postMessage({ type: 'frame', bitmap }, [bitmap]);
+        }
+        videoEl.requestVideoFrameCallback(cb);
+      };
+      videoEl.requestVideoFrameCallback(cb);
+      return () => { running = false; };
+    }
+
+    // fallback rAF
+    let rafId = 0;
+    const tick = async () => {
+      if (!running) return;
+      const t = performance.now();
+      if (t - last >= msPer) {
+        last = t;
+        const bitmap = await makeBitmap();
+        if (bitmap) worker.postMessage({ type: 'frame', bitmap }, [bitmap]);
+      }
+      rafId = requestAnimationFrame(tick);
+    };
+    rafId = requestAnimationFrame(tick);
+    return () => { running = false; cancelAnimationFrame(rafId); };
+  }
+
+  // Main: request camera with lower constraints on Android
+  (async function init() {
+    const ua = navigator.userAgent || '';
+    const isAndroid = /Android/i.test(ua);
+    const videoEl = document.getElementById('webcam');
+
+    const constraints = {
+      video: {
+        width: isAndroid ? { ideal: 640 } : { ideal: 1280 },
+        height: isAndroid ? { ideal: 480 } : { ideal: 720 },
+        frameRate: { max: isAndroid ? 15 : 30 },
+        facingMode: 'environment'
+      },
+      audio: false // turn off audio to reduce processing unless needed
+    };
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia(constraints);
+      videoEl.srcObject = stream;
+      // try to play (may be blocked by autoplay policy if not muted / user gesture)
+      await videoEl.play().catch(()=>{});
+      console.log('Camera started with constraints:', constraints);
+
+      // Create worker and start processing (throttled)
+      const worker = createProcessorWorker();
+      worker.onmessage = (ev) => {
+        const d = ev.data;
+        if (d.type === 'result') {
+          // Example: log lightweight result from worker
+          if (d.centerColor) {
+            // centerColor [r,g,b] as example processed data
+            // Use this to update your UI or target position as needed
+            console.log('Worker result centerColor:', d.centerColor);
+          } else {
+            console.log('Worker result:', d);
+          }
+        } else if (d.type === 'error') {
+          console.warn('Worker error:', d.message);
+        }
+      };
+
+      // Start sending frames to worker throttled
+      window._stopProcessor = startFrameProcessor(videoEl, worker, { maxProcessFPS: isAndroid ? 10 : 15 });
+
+      // Stop camera and worker on unload
+      window.addEventListener('pagehide', () => {
+        if (window._stopProcessor) window._stopProcessor();
+        try {
+          const tracks = stream.getTracks();
+          tracks.forEach(t => t.stop());
+        } catch (e) {}
+        try { worker.terminate(); } catch(e){}
+      });
+
+    } catch (err) {
+      console.error('ไม่สามารถเข้าถึงกล้องได้:', err);
+      // fallback: try without constraints (let browser pick lower by itself)
+      // const fallback = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+    }
+  })();
+  </script>
+</body>
+</html>
