@@ -18,23 +18,28 @@
     --sans: 'Inter', -apple-system, 'Segoe UI', sans-serif;
   }
   *{box-sizing:border-box; margin:0; padding:0;}
+  
+  /* ปรับปรุง Body ให้รองรับการเลื่อนหน้าจอ (Scroll) ทุกขนาดจอ */
   body{
     background: radial-gradient(1200px 800px at 50% -10%, #14201f 0%, var(--bg) 60%);
     color: var(--text);
     font-family: var(--sans);
-    min-height:100vh;
-    display:flex; align-items:center; justify-content:center;
-    padding: 24px;
+    min-height: 100vh;
+    padding: 32px 16px;
+    display: block;
   }
+
   .rig{
     width: 100%;
     max-width: 720px;
+    margin: 0 auto;
     background: var(--panel);
     border: 1px solid var(--line);
     border-radius: 18px;
-    overflow:hidden;
+    overflow: hidden;
     box-shadow: 0 30px 80px -30px rgba(0,0,0,0.6);
   }
+
   .header{
     padding: 18px 24px;
     border-bottom: 1px solid var(--line);
@@ -56,27 +61,75 @@
   @keyframes pulse{ 0%,100%{opacity:1;} 50%{opacity:0.4;} }
   .status{ font-family: var(--mono); font-size: 11px; color: var(--dim); }
 
-  .stage{ position: relative; background: #08100F; height: 420px; }
+  /* ปรับความสูง Stage ให้ไม่กินพื้นที่เกินไป และยืดหยุ่นได้ */
+  .stage{ 
+    position: relative; 
+    background: #08100F; 
+    height: 480px; 
+    max-height: 70vh;
+  }
   #stageCanvas{ width:100%; height:100%; display:block; cursor:crosshair; }
 
+  /* จัดระเบียบ หน้าแรก (Overlay) ให้อ่านง่าย มีระเบียบ รองรับการ Scroll ภายในกล่องได้ */
   .overlay{
-    position:absolute; inset:0;
-    display:flex; align-items:center; justify-content:center;
-    flex-direction:column; gap:16px;
-    text-align:center; padding: 32px;
-    background: rgba(8,16,15,0.92);
+    position: absolute; inset:0;
+    display: flex; align-items: center; justify-content: flex-start;
+    flex-direction: column; gap: 16px;
+    text-align: center; padding: 24px 20px;
+    background: rgba(8,16,15,0.95);
+    overflow-y: auto;
   }
-  .overlay p{ color: var(--dim); font-size: 14px; line-height:1.6; max-width: 440px; }
-  .overlay .big{ font-size: 22px; font-weight:700; color: var(--text); }
+  .overlay .big{ font-size: 20px; font-weight:700; color: var(--text); }
+  
+  .instruction-list {
+    text-align: left;
+    color: var(--dim);
+    font-size: 13px;
+    line-height: 1.6;
+    max-width: 480px;
+    margin: 0 auto;
+    padding-left: 20px;
+  }
+  .instruction-list li { margin-bottom: 6px; }
 
   button{
     font-family: var(--sans); font-weight: 600; font-size: 14px;
-    border: none; border-radius: 10px; padding: 12px 22px; cursor:pointer;
+    border: none; border-radius: 10px; padding: 12px 28px; cursor:pointer;
     background: var(--teal); color: #06201C;
-    transition: transform 0.15s ease, opacity 0.15s ease;
+    transition: transform 0.15s ease, opacity 0.15s ease, background-color 0.15s ease;
   }
-  button:hover{ transform: translateY(-1px); }
+  button:hover{ transform: translateY(-1px); filter: brightness(1.08); }
   button.ghost{ background: transparent; border: 1px solid var(--line); color: var(--text); }
+
+  /* กล่องกรอกข้อมูลที่จัดระเบียบใหม่ */
+  .input-card {
+    background: rgba(255,255,255,0.02);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 14px 16px;
+    width: 100%;
+    max-width: 480px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .age-field{ display:flex; align-items:center; gap:10px; justify-content:center; }
+  .age-field label{ font-size:13px; color:var(--text); font-weight: 500; }
+  .age-field input{
+    width: 70px; padding: 6px 10px; border-radius: 8px;
+    border: 1px solid var(--line); background: #08100F; color: var(--text);
+    font-family: var(--mono); font-size: 14px; text-align:center;
+  }
+  .age-warning{ font-size:11px; color: var(--amber); min-height:14px; }
+
+  .consent-box{
+    display:flex; align-items:flex-start; gap:10px; text-align:left;
+    border-top: 1px dashed var(--line);
+    padding-top: 10px;
+  }
+  .consent-box input[type="checkbox"]{ margin-top: 3px; flex-shrink:0; width:16px; height:16px; cursor: pointer; }
+  .consent-box label{ font-size: 11.5px; color: var(--dim); line-height: 1.5; cursor: pointer; }
 
   .strip{
     padding: 14px 24px; border-top: 1px solid var(--line);
@@ -132,15 +185,6 @@
   }
   .pattern-flags li::before{ content:'—'; position:absolute; left:0; color: var(--amber); }
 
-  .age-field{ display:flex; align-items:center; gap:10px; justify-content:center; margin-top:4px; }
-  .age-field label{ font-size:13px; color:var(--dim); }
-  .age-field input{
-    width: 70px; padding: 8px 10px; border-radius: 8px;
-    border: 1px solid var(--line); background: #08100F; color: var(--text);
-    font-family: var(--mono); font-size: 14px; text-align:center;
-  }
-  .age-warning{ font-size:11px; color: var(--amber); min-height:14px; }
-
   .limits-panel{ display:none; margin-top: 22px; padding-top: 18px; border-top: 1px dashed var(--line); }
   .limits-panel h3{ font-size: 13px; color: var(--dim); font-weight:600; margin-bottom: 12px; letter-spacing:0.03em; }
   .limits-panel ol{ padding-left: 18px; }
@@ -161,11 +205,6 @@
   }
   .bubble.ai{ background: rgba(45,217,196,0.08); border:1px solid rgba(45,217,196,0.2); align-self:flex-start; }
   .bubble.user{ background: rgba(255,255,255,0.05); border:1px solid var(--line); align-self:flex-end; }
-  .bubble.loading{ color: var(--dim); font-style: italic; }
-  .bubble.error{ background: rgba(232,93,93,0.08); border:1px solid rgba(232,93,93,0.25); color: var(--red); }
-  .ai-disclaimer{
-    font-size: 11px; color: var(--dim); margin-top: 8px; line-height:1.5;
-  }
 
   .cam-preview{
     position:absolute; bottom:14px; right:14px;
@@ -179,16 +218,14 @@
     position:absolute; top:4px; left:6px; font-family: var(--mono); font-size:9px;
     color: var(--teal); letter-spacing:0.05em; text-shadow: 0 1px 2px #000;
   }
-  .consent-box{
-    display:flex; align-items:flex-start; gap:8px; text-align:left;
-    max-width: 440px; margin-top: 6px; padding: 12px; border-radius: 10px;
-    border: 1px solid var(--line); background: rgba(255,255,255,0.02);
-  }
-  .consent-box input[type="checkbox"]{ margin-top: 3px; flex-shrink:0; width:16px; height:16px; }
-  .consent-box label{ font-size: 12px; color: var(--dim); line-height:1.6; }
-  .skip-cam-link{
-    background:none; border:none; color: var(--dim); font-size: 12px;
-    text-decoration: underline; cursor:pointer; padding: 4px; font-weight:400;
+
+  /* Responsive styling สำหรับมือถือ */
+  @media (max-width: 480px) {
+    body { padding: 12px 8px; }
+    .header { padding: 14px 16px; }
+    .stage { height: 400px; }
+    .overlay { padding: 16px 12px; }
+    .input-card { padding: 12px; }
   }
 </style>
 </head>
@@ -211,28 +248,31 @@
       <video id="camVideo" autoplay muted playsinline></video>
     </div>
 
+    <!-- ปรับแต่ง UI หน้าแรกให้กระชับ โดดเด่น และอ่านง่าย -->
     <div class="overlay" id="introOverlay">
       <div class="big">พร้อมทดสอบหรือยัง?</div>
-      <p>
-        จุดสีจะเคลื่อนที่ไปมาบนหน้าจอ ให้มองตามจุดนั้นด้วยสายตา<br>
-        เมื่อจุด<b style="color:var(--amber)">เปลี่ยนเป็นสีส้ม</b> ให้คลิก/แตะที่จุดนั้นทันทีให้เร็วและแม่นที่สุด<br>
-        ถ้าคลิกผิดจังหวะ (ตอนจุดยังเป็นสีเขียว) หรือคลิกไม่โดนจุดเลย จะถูกนับไว้ด้วย<br><br>
-        การทดสอบใช้เวลาประมาณ 2 นาที
-      </p>
-      <div class="age-field">
-        <label for="ageInput">อายุของผู้ทดสอบ:</label>
-        <input type="number" id="ageInput" min="6" max="100" placeholder="เช่น 12">
-        <label for="ageInput">ปี</label>
-      </div>
-      <div class="age-warning" id="ageWarning"></div>
+      
+      <ul class="instruction-list">
+        <li>ใช้นัยน์ตามองตามจุดสีที่เคลื่อนที่ไปมาบนหน้าจอ</li>
+        <li>เมื่อจุด<b style="color:var(--amber)"> เปลี่ยนเป็นสีส้ม</b> ให้คลิก/แตะจุดนั้นทันทีให้เร็วที่สุด</li>
+        <li>การกดผิดจังหวะ (กดตอนสีเขียว) หรือคลิกไม่โดน จะถูกบันทึกไว้</li>
+        <li>การทดสอบใช้เวลาประมาณ <b>2 นาที</b></li>
+      </ul>
 
-      <div class="consent-box">
-        <input type="checkbox" id="camConsent">
-        <label for="camConsent">
-          ยินยอมให้ใช้กล้องเพื่อวิเคราะห์การเคลื่อนไหวของดวงตาและศีรษะระหว่างทำแบบทดสอบ
-          ภาพจากกล้อง<b style="color:var(--text)">ประมวลผลอยู่ในเครื่องนี้เท่านั้น ไม่มีการบันทึกหรือส่งวิดีโอออกไปที่ใดทั้งสิ้น</b>
-          หากไม่ต้องการใช้กล้อง ยังสามารถทำแบบทดสอบต่อได้โดยไม่ทำเครื่องหมาย
-        </label>
+      <div class="input-card">
+        <div class="age-field">
+          <label for="ageInput">อายุของผู้ทดสอบ:</label>
+          <input type="number" id="ageInput" min="6" max="100" placeholder="เช่น 12">
+          <label for="ageInput">ปี</label>
+        </div>
+        <div class="age-warning" id="ageWarning"></div>
+
+        <div class="consent-box">
+          <input type="checkbox" id="camConsent">
+          <label for="camConsent">
+            ยินยอมให้ใช้กล้องเพื่อวิเคราะห์การเคลื่อนไหวของสายตาและศีรษะ (ประมวลผลในเครื่องเท่านั้น ไม่มีการบันทึกภาพ)
+          </label>
+        </div>
       </div>
 
       <button id="startBtn">เริ่มทดสอบ</button>
@@ -240,7 +280,7 @@
 
     <div class="overlay" id="calibratingOverlay" style="display:none;">
       <div class="big">กำลังค้นหาใบหน้า...</div>
-      <p>จัดตำแหน่งใบหน้าให้อยู่กลางกล้อง และให้แสงเพียงพอ (ดูตัวอย่างในกรอบเล็กมุมขวาล่าง)</p>
+      <p style="color:var(--dim); font-size:13px; margin-top:8px;">จัดตำแหน่งใบหน้าให้อยู่กลางกล้อง และให้แสงเพียงพอ (ดูตัวอย่างในกรอบเล็กมุมขวาล่าง)</p>
     </div>
   </div>
 
@@ -332,25 +372,18 @@
   </div>
 </div>
 
-<!-- MediaPipe Face Mesh (โมเดล AI สำเร็จรูปสำหรับตรวจจับจุดบนใบหน้า/ดวงตา — โหลดจาก CDN ต้องมีอินเทอร์เน็ต) -->
 <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js" crossorigin="anonymous"></script>
 
 <script>
 /* =========================================================
-   CONFIG — ปรับค่าตรงนี้ได้ตามต้องการ
+   CONFIG
    ========================================================= */
-const TEST_DURATION_MS = 120000;         // เวลาทดสอบทั้งหมด (2 นาที)
-const TARGET_INTERVAL_RANGE = [2200, 4800]; // ช่วงเวลาสุ่มก่อนเป้าหมายถัดไปโผล่ (ms)
-const TARGET_VISIBLE_MS = 850;           // เป้าหมาย (สีส้ม) แสดงนานเท่าไหร่ก่อนถือว่า "พลาด"
-const HIT_RADIUS = 0.09;                 // รัศมีที่ถือว่าคลิกโดนจุด (สัดส่วนของพื้นที่ canvas)
+const TEST_DURATION_MS = 120000;         
+const TARGET_INTERVAL_RANGE = [2200, 4800]; 
+const TARGET_VISIBLE_MS = 850;           
+const HIT_RADIUS = 0.09;                 
 
-/* ปรับเกณฑ์ตามช่วงอายุ — ทิศทางอ้างอิงจาก Conners, Epstein, Angold & Klaric (2003)
-   ซึ่งพบว่าในกลุ่มตัวอย่าง 816 คน อายุ 9-17 ปี ประสิทธิภาพ CPT (RT, RT SD, omission, commission)
-   ดีขึ้นอย่างเป็นระบบตามอายุที่มากขึ้น เด็กเล็กจึงตอบสนองช้ากว่าและแปรปรวนกว่าโดยธรรมชาติ
-   ไม่ใช่สัญญาณของการขาดสมาธิเสมอไป
-   ⚠️ ตัวเลขด้านล่างเป็นการประมาณทิศทางเพื่อใช้ในต้นแบบเท่านั้น ไม่ใช่ตาราง norm ทางคลินิกจริง
-   (ดูปุ่ม "ข้อจำกัดของเครื่องมือนี้" ในหน้าผลลัพธ์) */
 const AGE_BANDS = [
   { maxAge: 8,   label: '6–8 ปี',      rtBestMs: 250, rtRangeMs: 800, consistencyDivisorMs: 550 },
   { maxAge: 11,  label: '9–11 ปี',     rtBestMs: 220, rtRangeMs: 730, consistencyDivisorMs: 480 },
@@ -359,22 +392,22 @@ const AGE_BANDS = [
   { maxAge: 999, label: '18 ปีขึ้นไป', rtBestMs: 200, rtRangeMs: 650, consistencyDivisorMs: 400 }
 ];
 function getAgeBand(age){
-  const a = Number.isFinite(age) ? age : 18; // ไม่ระบุอายุ = ใช้เกณฑ์ผู้ใหญ่เป็นค่าเริ่มต้น
+  const a = Number.isFinite(age) ? age : 18; 
   return AGE_BANDS.find(b => a <= b.maxAge) || AGE_BANDS[AGE_BANDS.length - 1];
 }
 
 /* =========================================================
-   CAMERA / EYE & HEAD TRACKING (MediaPipe Face Mesh)
+   CAMERA / EYE & HEAD TRACKING
    ========================================================= */
-const EAR_BLINK_THRESHOLD = 0.19;           // ค่า eye-aspect-ratio ต่ำกว่านี้ถือว่าตากำลังปิด
+const EAR_BLINK_THRESHOLD = 0.19;           
 const LEFT_EYE  = { top: 159, bottom: 145, left: 33,  right: 133 };
 const RIGHT_EYE = { top: 386, bottom: 374, left: 362, right: 263 };
-const LEFT_IRIS = 468;   // ต้องเปิด refineLandmarks: true ถึงจะมีจุดม่านตา
+const LEFT_IRIS = 468;   
 const RIGHT_IRIS = 473;
-const NOSE_TIP = 1;      // ใช้ประมาณ "ความนิ่งของศีรษะ" จากการขยับของจุดปลายจมูก
+const NOSE_TIP = 1;      
 
-let cameraWanted = false;   // ผู้ใช้ติ๊กยินยอมใช้กล้องหรือไม่
-let cameraActive = false;   // กล้อง+โมเดลพร้อมทำงานจริงหรือไม่
+let cameraWanted = false;   
+let cameraActive = false;   
 let faceMesh = null;
 let mpCamera = null;
 let latestLandmarks = null;
@@ -404,7 +437,6 @@ function resizeCanvas(){
 }
 window.addEventListener('resize', resizeCanvas);
 
-/* ---------- ฟังก์ชันคำนวณจาก landmark ---------- */
 function eyeAspectRatio(lm, eye){
   const top = lm[eye.top], bottom = lm[eye.bottom];
   const left = lm[eye.left], right = lm[eye.right];
@@ -420,7 +452,6 @@ function gazeRatio(lm, eye, irisIdx){
   return (iris.x - left.x) / span;
 }
 
-/* ---------- ตั้งค่า MediaPipe Face Mesh + กล้อง ---------- */
 async function setupFaceMesh(){
   const camVideo = document.getElementById('camVideo');
   faceMesh = new FaceMesh({
@@ -428,7 +459,7 @@ async function setupFaceMesh(){
   });
   faceMesh.setOptions({
     maxNumFaces: 1,
-    refineLandmarks: true,       // จำเป็นสำหรับจุดม่านตา (468-477)
+    refineLandmarks: true,       
     minDetectionConfidence: 0.6,
     minTrackingConfidence: 0.6
   });
@@ -447,7 +478,6 @@ function onFaceResults(results){
   if (results.multiFaceLandmarks && results.multiFaceLandmarks.length > 0){
     latestLandmarks = results.multiFaceLandmarks[0];
     if (!cameraActive){
-      // เจอใบหน้าครั้งแรก -> พร้อมเริ่มทดสอบ
       cameraActive = true;
       document.getElementById('calibratingOverlay').style.display = 'none';
       document.getElementById('camStatus').textContent = 'ตรวจพบใบหน้า';
@@ -477,7 +507,7 @@ function stopCamera(){
 document.getElementById('startBtn').addEventListener('click', async () => {
   const ageVal = parseInt(document.getElementById('ageInput').value, 10);
   if (!Number.isFinite(ageVal) || ageVal < 6 || ageVal > 100){
-    document.getElementById('ageWarning').textContent = 'กรุณากรอกอายุ (6-100 ปี) ก่อนเริ่มทดสอบ เพื่อใช้ปรับเกณฑ์ให้เหมาะสมกับวัย';
+    document.getElementById('ageWarning').textContent = 'กรุณากรอกอายุ (6-100 ปี) ก่อนเริ่มทดสอบ';
     return;
   }
   userAge = ageVal;
@@ -491,12 +521,11 @@ document.getElementById('startBtn').addEventListener('click', async () => {
     resizeCanvas();
     try {
       await setupFaceMesh();
-      // beginTest() ถูกเรียกจาก onFaceResults() เมื่อเจอใบหน้าครั้งแรก
     } catch (e){
       document.getElementById('calibratingOverlay').style.display = 'none';
       document.getElementById('camStatus').textContent = 'เปิดกล้องไม่สำเร็จ: ' + e.message;
       cameraWanted = false;
-      beginTest(); // เปิดกล้องไม่ได้ ให้ทำแบบทดสอบต่อโดยไม่ใช้กล้อง
+      beginTest(); 
     }
   } else {
     document.getElementById('introOverlay').style.display = 'none';
@@ -537,7 +566,7 @@ function scheduleNextTarget(){
     dot.currentAttempt = attempt;
     document.getElementById('targetCount').textContent = targets.shown;
     setTimeout(() => {
-      if (dot.isTarget){ dot.isTarget = false; } // ไม่ได้คลิกทัน = นับเป็นพลาด (miss) โดยอัตโนมัติ
+      if (dot.isTarget){ dot.isTarget = false; } 
       if (testRunning) scheduleNextTarget();
     }, TARGET_VISIBLE_MS);
   }, delay);
@@ -558,11 +587,9 @@ stageCanvas.addEventListener('pointerdown', (e) => {
     dot.isTarget = false;
     document.getElementById('hitCount').textContent = targets.hit;
   } else if (!dot.isTarget && dist < HIT_RADIUS){
-    // คลิกโดนจุดตอนที่ยังไม่ใช่เป้าหมาย = ตอบสนองผิดจังหวะ
     targets.falseAlarms++;
     document.getElementById('falseCount').textContent = targets.falseAlarms;
   } else if (dist >= HIT_RADIUS){
-    // คลิกไม่โดนจุดเลย ไม่ว่าจุดจะเป็นเป้าหมายหรือไม่
     targets.missClicks++;
     document.getElementById('missClickCount').textContent = targets.missClicks;
   }
@@ -574,12 +601,10 @@ function tick(now){
   const remaining = Math.max(0, TEST_DURATION_MS - elapsed);
   document.getElementById('timeLeft').textContent = (remaining / 1000).toFixed(1) + 's';
 
-  // เส้นทางเคลื่อนที่แบบ lissajous ให้ดูลื่นไหลไม่เป็นเส้นตรงซ้ำ ๆ
   dot.angle += 0.018;
   dot.x = 0.5 + 0.36 * Math.sin(dot.angle * 1.3);
   dot.y = 0.5 + 0.30 * Math.sin(dot.angle * 0.9 + 1.1);
 
-  // ประมวลผลข้อมูลจากกล้อง (ถ้ามี)
   if (cameraActive && latestLandmarks){
     document.getElementById('camStatus').textContent = 'ตรวจพบใบหน้า';
     const earL = eyeAspectRatio(latestLandmarks, LEFT_EYE);
@@ -613,7 +638,6 @@ function drawStage(){
   const w = stageCanvas.width, h = stageCanvas.height;
   stageCtx.clearRect(0, 0, w, h);
 
-  // เส้นกริดจาง ๆ ให้ดูเป็นเครื่องมือวัด
   stageCtx.strokeStyle = 'rgba(255,255,255,0.04)';
   stageCtx.lineWidth = 1;
   for (let gx = 0; gx < w; gx += 40){ stageCtx.beginPath(); stageCtx.moveTo(gx,0); stageCtx.lineTo(gx,h); stageCtx.stroke(); }
@@ -655,46 +679,25 @@ function endTest(){
     ? targets.reactionTimes.reduce((a,b)=>a+b,0) / targets.reactionTimes.length
     : null;
 
-  // ความสม่ำเสมอของ reaction time: ยิ่ง std-dev ต่ำ ยิ่งสม่ำเสมอ (สัญญาณของสมาธิที่คงที่)
-  // ตัวหารปรับตามช่วงอายุ (ดู AGE_BANDS) — เด็กเล็กมีความแปรปรวนตามธรรมชาติสูงกว่า
   const rtStd = computeStdDev(targets.reactionTimes);
   const consistency = targets.reactionTimes.length >= 2
     ? Math.max(0, Math.min(1, 1 - rtStd / ageBand.consistencyDivisorMs))
     : null;
 
-  // reaction time score: เร็ว = ดี, ช่วงคะแนนปรับตามช่วงอายุ (ดู AGE_BANDS)
   const rtScore = avgRT === null ? 0 : Math.max(0, Math.min(1, 1 - (avgRT - ageBand.rtBestMs) / ageBand.rtRangeMs));
-
-  // ลงโทษการคลิกผิดจังหวะ (false alarm / commission error) เทียบกับจำนวนเป้าหมายทั้งหมด
   const falsePenalty = targets.shown === 0 ? 0 : Math.min(1, targets.falseAlarms / Math.max(3, targets.shown));
 
-  /* ---------- ตัวชี้วัดจากกล้อง (ถ้ามี) ---------- */
-  // Gaze stability: ยิ่งค่าเบี่ยงเบนมาตรฐานของตำแหน่งม่านตาต่ำ ยิ่งมองตามเป้าหมายได้เสถียร
-  // อ้างอิง: Chen et al. พบว่าเด็ก ADHD มีความแปรปรวนของการจ้องมองสูงกว่ากลุ่มควบคุม
   const gazeStd = gazeSamples.length >= 10 ? computeStdDev(gazeSamples) : null;
   const gazeStability = gazeStd === null ? null : Math.max(0, Math.min(1, 1 - gazeStd / 0.18));
 
-  // Head pose stability: ยิ่งจุดปลายจมูกขยับน้อย ยิ่งนิ่ง — ใช้แทนแนวคิด "การเคลื่อนไหวศีรษะ/อยู่ไม่นิ่ง"
-  // อ้างอิงทิศทางจากงานวิจัย actigraphy และงานที่พบว่าเด็ก ADHD มีการเคลื่อนไหวศีรษะมากกว่ากลุ่มควบคุม
   let headPoseStability = null;
   if (noseXSamples.length >= 10){
     const headMoveStd = Math.hypot(computeStdDev(noseXSamples), computeStdDev(noseYSamples));
     headPoseStability = Math.max(0, Math.min(1, 1 - headMoveStd / 0.09));
   }
 
-  // อัตราการกระพริบตา (ครั้ง/นาที) — แสดงเป็นข้อมูลเสริมเท่านั้น ไม่นำไปคิดคะแนน
-  // เพราะงานวิจัยพบทิศทางของผลลัพธ์ไม่ตรงกันในแต่ละการศึกษา (ดูปุ่มข้อจำกัด)
   const blinkRatePerMin = gazeSamples.length >= 10 ? (blinkState.count / (TEST_DURATION_MS / 60000)) : null;
 
-  /* น้ำหนักคะแนนอ้างอิงงานวิจัย CPT (Conners' CPT, Epstein et al. 2003; Kofler et al. meta-analysis)
-     บวกงานวิจัยด้าน eye-tracking/การเคลื่อนไหวศีรษะใน ADHD:
-     - RT variability (consistency) และ Omission (accuracy) เป็นตัวชี้วัดพฤติกรรมหลัก คงน้ำหนักสูงสุดเท่ากัน
-     - Commission (false alarm) น้ำหนักรองลงมา จำเพาะกับ impulsivity
-     - Mean RT น้ำหนักต่ำสุด เพราะจำเพาะน้อยที่สุดในงานวิจัย
-     - Gaze stability และ Head pose stability เป็นตัวชี้วัดเสริมจากกล้อง ให้น้ำหนักรวมกันไม่เกิน 30%
-       เพราะยังไม่มีการสอบเทียบ (calibration) เทียบเท่า eye-tracker ทางคลินิก
-     - ถ้าไม่มีข้อมูลจากกล้อง (ไม่ใช้กล้อง/ตรวจจับใบหน้าไม่ได้) จะกระจายน้ำหนักส่วนนั้นคืนให้ตัวชี้วัดพฤติกรรมตามสัดส่วนเดิม
-       เพื่อให้คะแนนยังคำนวณได้ครบ 100% เสมอ ไม่ลงโทษคนที่เลือกไม่ใช้กล้อง */
   const BASE_WEIGHTS = { accuracy: 0.28, falseAlarm: 0.16, consistency: 0.28, rt: 0.08, gaze: 0.12, headPose: 0.08 };
   const activeWeights = { ...BASE_WEIGHTS };
   let redistribute = 0;
@@ -726,34 +729,24 @@ function endTest(){
   renderResults({ accuracy, avgRT, consistency, finalScore, missedTargets, pattern, gazeStability, headPoseStability, blinkRatePerMin });
 }
 
-/* =========================================================
-   PATTERN / OBSERVATION (ไม่ใช่การวินิจฉัย)
-   ให้ข้อความเชิงพรรณนา "สิ่งที่สังเกตได้จากผลทดสอบ" เท่านั้น
-   ไม่ตัดสินว่าเป็นหรือไม่เป็นภาวะขาดสมาธิ
-   ========================================================= */
 function computePattern({ accuracy, consistency, falsePenalty, finalScore, missedTargets, gazeStability, headPoseStability }){
   const flags = [];
 
-  // อ้างอิง omission error สูง -> สัมพันธ์กับ inattention (Barkley 1991; Epstein et al. 2003)
   if (accuracy < 0.6){
     flags.push('อัตราการพลาดเป้าหมาย (omission) ค่อนข้างสูง ซึ่งงานวิจัยด้าน CPT มักเชื่อมโยงกับรูปแบบการขาดสมาธิ (inattention)');
   }
-  // อ้างอิง commission error สูง -> สัมพันธ์กับ impulsivity
   if (falsePenalty > 0.35){
     flags.push('มีการตอบสนองก่อนเวลาอันควร (commission) บ่อยครั้ง ซึ่งมักเชื่อมโยงกับรูปแบบความหุนหันพลันแล่น (impulsivity)');
   }
-  // อ้างอิง RT variability สูง -> ตัวชี้วัดที่งานวิจัยให้น้ำหนักมากที่สุด
   if (consistency !== null && consistency < 0.5){
     flags.push('เวลาตอบสนองในแต่ละครั้งไม่สม่ำเสมอ ซึ่งเป็นตัวชี้วัดที่งานวิจัยพบว่าสัมพันธ์กับความแปรปรวนของสมาธิมากที่สุด');
   }
   if (missedTargets >= 5){
     flags.push('พลาดเป้าหมายหลายครั้งติดต่อกันในบางช่วง ลองดูกราฟเวลาตอบสนองในรายละเอียดเพิ่มเติมว่าหลุดช่วงไหนของการทดสอบ');
   }
-  // อ้างอิง gaze variability สูง -> พบในงานวิจัย eye-tracking กับ ADHD
   if (gazeStability !== null && gazeStability < 0.5){
     flags.push('การมองตามจุดเคลื่อนที่มีความเบี่ยงเบนค่อนข้างมาก ซึ่งงานวิจัยด้าน eye-tracking มักเชื่อมโยงกับความไม่เสถียรของการจ้องมอง');
   }
-  // อ้างอิง การเคลื่อนไหวศีรษะมาก -> พบในงานวิจัยด้านการเคลื่อนไหวศีรษะ/actigraphy กับ ADHD
   if (headPoseStability !== null && headPoseStability < 0.5){
     flags.push('มีการขยับศีรษะค่อนข้างมากระหว่างทำแบบทดสอบ ซึ่งงานวิจัยมักเชื่อมโยงกับรูปแบบการอยู่ไม่นิ่ง (motor restlessness)');
   }
@@ -766,11 +759,11 @@ function computePattern({ accuracy, consistency, falsePenalty, finalScore, misse
   } else if (finalScore >= 45){
     tier = 'watch';
     label = 'มีบางจุดที่ควรสังเกต';
-    desc = 'ผลรอบนี้มีบางรูปแบบที่ต่างจากค่าเฉลี่ยทั่วไปเล็กน้อยถึงปานกลาง ลองทำซ้ำอีก 1-2 รอบในเวลาต่างกันเพื่อดูว่ารูปแบบซ้ำเดิมหรือไม่ ก่อนจะสรุปอะไร';
+    desc = 'ผลรอบนี้มีบางรูปแบบที่ต่างจากค่าเฉลี่ยทั่วไปเล็กน้อยถึงปานกลาง ลองทำซ้ำอีก 1-2 รอบในเวลาต่างกันเพื่อดูว่ารูปแบบซ้ำเดิมหรือไม่';
   } else {
     tier = 'concern';
     label = 'มีหลายจุดที่ควรสังเกต';
-    desc = 'ผลรอบนี้มีรูปแบบที่ควรสังเกตหลายจุดพร้อมกัน หากรูปแบบนี้เกิดซ้ำหลายรอบ หรือส่งผลต่อการเรียน/การทำงานในชีวิตจริง แนะนำให้ปรึกษาแพทย์หรือนักจิตวิทยาเพื่อประเมินอย่างละเอียด';
+    desc = 'ผลรอบนี้มีรูปแบบที่ควรสังเกตหลายจุดพร้อมกัน หากรูปแบบนี้เกิดซ้ำหลายรอบ หรือส่งผลต่อการเรียน/การทำงานในชีวิตจริง แนะนำให้ปรึกษาแพทย์';
   }
 
   return { tier, label, desc, flags };
@@ -846,7 +839,6 @@ function renderResults(r){
   };
 }
 
-/* วาดกราฟแท่งแสดงเวลาตอบสนองของแต่ละเป้าหมาย (เขียว = ตอบทัน, แดง = พลาด) */
 function drawReactionChart(){
   const canvas = document.getElementById('chartCanvas');
   const rect = canvas.getBoundingClientRect();
@@ -865,7 +857,7 @@ function drawReactionChart(){
     return;
   }
 
-  const maxRT = TARGET_VISIBLE_MS; // ใช้เวลาสูงสุดของเป้าหมายเป็นเพดานกราฟ
+  const maxRT = TARGET_VISIBLE_MS; 
   const plotW = w - pad.left - pad.right;
   const plotH = h - pad.top - pad.bottom;
   const barGap = 4;
@@ -880,7 +872,6 @@ function drawReactionChart(){
     ctx.fillRect(x, y, barW, barH);
   });
 
-  // เส้นแกนล่าง
   ctx.strokeStyle = 'rgba(255,255,255,0.08)';
   ctx.beginPath();
   ctx.moveTo(pad.left, h - pad.bottom);
@@ -925,7 +916,7 @@ document.getElementById('detailsBtn').addEventListener('click', () => {
   const isOpen = panel.style.display === 'block';
   panel.style.display = isOpen ? 'none' : 'block';
   document.getElementById('detailsBtn').textContent = isOpen ? 'ดูรายละเอียดเพิ่มเติม' : 'ซ่อนรายละเอียด';
-  if (!isOpen) drawReactionChart(); // วาดใหม่ตอนเปิด เพราะ canvas อาจยังไม่มีขนาดตอนซ่อนอยู่
+  if (!isOpen) drawReactionChart(); 
 });
 
 document.getElementById('exportBtn').addEventListener('click', () => {
@@ -938,17 +929,8 @@ document.getElementById('exportBtn').addEventListener('click', () => {
   URL.revokeObjectURL(url);
 });
 
-/* =========================================================
-   การวิเคราะห์เพิ่มเติม (แบบกฎเกณฑ์ ไม่เรียก AI/เครือข่ายใด ๆ)
-   หลักการ: อธิบาย "รูปแบบที่สังเกตได้" จากตัวเลขเท่านั้น
-   ห้ามวินิจฉัย ห้ามฟันธงเรื่องภาวะทางคลินิก ต้องแนะนำผู้เชี่ยวชาญเสมอ
-   ========================================================= */
-
-// เปรียบเทียบ hit rate ครึ่งแรก vs ครึ่งหลังของการทดสอบ
-// อ้างอิงแนวคิด "vigilance decrement" ใน CPT: ประสิทธิภาพมักลดลงเมื่อเวลาผ่านไป
-// และมักลดลงมากกว่าปกติในกลุ่มที่มีปัญหาด้านสมาธิ
 function computeVigilanceTrend(attempts){
-  if (attempts.length < 6) return null; // ข้อมูลน้อยเกินไปจะสรุปแนวโน้มไม่ได้
+  if (attempts.length < 6) return null; 
   const mid = Math.floor(attempts.length / 2);
   const firstHalf = attempts.slice(0, mid);
   const secondHalf = attempts.slice(mid);
@@ -960,7 +942,7 @@ function computeVigilanceTrend(attempts){
 
 function renderAiBubble(text, extraClass){
   const container = document.getElementById('aiMessages');
-  container.innerHTML = ''; // แสดงผลล่าสุดอันเดียว เผื่อกดดูซ้ำ
+  container.innerHTML = ''; 
   const div = document.createElement('div');
   div.className = 'bubble ai' + (extraClass ? ' ' + extraClass : '');
   div.textContent = text;
@@ -968,8 +950,6 @@ function renderAiBubble(text, extraClass){
   return div;
 }
 
-// ให้คำอธิบายเป็นช่วง (band) แทนการบอกแค่ "ปกติ/ไม่ปกติ" แบบสองขั้ว
-// เพื่อให้เห็นจุดสังเกตแม้ค่านั้นจะอยู่ในเกณฑ์ทั่วไปก็ตาม
 function bandText(value, bands){
   for (const b of bands){
     if (value >= b.min) return b.text;
@@ -982,12 +962,9 @@ function generateExtendedAnalysis(){
   if (!r) return 'ยังไม่มีข้อมูลผลการทดสอบ';
 
   const lines = [];
-
   lines.push(`ข้อความต่อไปนี้เป็นการอธิบาย "รูปแบบของตัวเลข" ที่ได้จากการทดสอบเท่านั้น ไม่ใช่การประเมินหรือวินิจฉัยโดยแพทย์ ไม่ว่าค่าจะอยู่ในเกณฑ์ใดก็ตาม`);
-
   lines.push(`สรุประดับที่ระบบประเมินไว้: "${r.pattern.label}" (คะแนนรวม ${r.finalScore}/100 เทียบกับช่วงอายุ ${r.ageBandLabel})`);
 
-  // ---------- 1. Hit rate / omission ----------
   const accPct = r.accuracy * 100;
   const accText = bandText(accPct, [
     { min: 90, text: 'สูงมาก แทบไม่พลาดเป้าหมายเลยตลอดการทดสอบ' },
@@ -996,96 +973,52 @@ function generateExtendedAnalysis(){
     { min: 40, text: 'ค่อนข้างต่ำ พลาดเป้าหมายบ่อยกว่าค่าที่มักพบทั่วไป' },
     { min: 0,  text: 'ต่ำมาก พลาดเป้าหมายเป็นส่วนใหญ่ของรอบทดสอบ' }
   ]);
-  lines.push(`▸ ความแม่นยำต่อเป้าหมาย (Hit Rate): ตอบถูก ${r.hits}/${r.targetsShown} ครั้ง (${accPct.toFixed(0)}%) — ${accText} แม้จะอยู่ในเกณฑ์ที่ดี ค่านี้ก็ยังเป็นแค่ภาพรวมของรอบทดสอบเดียว ไม่สามารถใช้สรุปภาพรวมของบุคคลได้`);
+  lines.push(`▸ ความแม่นยำต่อเป้าหมาย (Hit Rate): ตอบถูก ${r.hits}/${r.targetsShown} ครั้ง (${accPct.toFixed(0)}%) — ${accText}`);
 
-  // ---------- 2. Commission / false alarm ----------
   const faRate = r.targetsShown ? r.falseAlarms / Math.max(3, r.targetsShown) : 0;
   const faText = bandText(faRate, [
     { min: 0.6,  text: 'สูงมาก มีการตอบสนองก่อนเวลาบ่อยครั้งอย่างเห็นได้ชัด' },
     { min: 0.35, text: 'ค่อนข้างสูง มีการตอบสนองก่อนเวลาบ่อยกว่าค่าที่มักพบทั่วไป' },
-    { min: 0.15, text: 'อยู่ในเกณฑ์ทั่วไป มีการตอบสนองก่อนเวลาอยู่บ้างตามธรรมชาติของงานที่ต้องตอบสนองเร็ว' },
+    { min: 0.15, text: 'อยู่ในเกณฑ์ทั่วไป มีการตอบสนองก่อนเวลาอยู่บ้างตามธรรมชาติ' },
     { min: 0,    text: 'ต่ำมาก แทบไม่มีการตอบสนองก่อนเวลาเลย' }
   ]);
-  lines.push(`▸ การตอบสนองก่อนเวลา (Commission / False Alarm): ${r.falseAlarms} ครั้ง จากเป้าหมายทั้งหมด ${r.targetsShown} ครั้ง — ${faText} ค่านี้จำเพาะกับรูปแบบ "ตอบเร็วกว่าที่ควร" ไม่ได้จำเพาะกับการขาดสมาธิโดยตรง`);
+  lines.push(`▸ การตอบสนองก่อนเวลา (Commission / False Alarm): ${r.falseAlarms} ครั้ง จากเป้าหมายทั้งหมด ${r.targetsShown} ครั้ง — ${faText}`);
 
-  // ---------- 3. Consistency (RT variability) ----------
   if (r.consistency !== null){
     const consPct = r.consistency * 100;
     const consText = bandText(consPct, [
       { min: 80, text: 'สม่ำเสมอมาก เวลาตอบสนองแต่ละครั้งใกล้เคียงกันตลอดการทดสอบ' },
       { min: 60, text: 'สม่ำเสมอดี มีความแปรปรวนเล็กน้อยซึ่งพบได้ทั่วไป' },
-      { min: 40, text: 'แปรปรวนปานกลาง เวลาตอบสนองแกว่งขึ้นลงพอสมควรระหว่างรอบทดสอบ' },
+      { min: 40, text: 'แปรปรวนปานกลาง เวลาตอบสนองแกว่งขึ้นลงพอสมควร' },
       { min: 20, text: 'แปรปรวนค่อนข้างมาก เวลาตอบสนองในแต่ละครั้งต่างกันชัดเจน' },
       { min: 0,  text: 'แปรปรวนมาก เวลาตอบสนองไม่คงที่ตลอดการทดสอบ' }
     ]);
-    lines.push(`▸ ความสม่ำเสมอของเวลาตอบสนอง (Consistency): ${consPct.toFixed(0)}% — ${consText} งานวิจัยด้าน CPT มักให้ความสำคัญกับตัวเลขนี้เป็นพิเศษ เพราะสะท้อนความคงที่ของการตอบสนองมากกว่าความเร็วเฉลี่ยเพียงอย่างเดียว`);
+    lines.push(`▸ ความสม่ำเสมอของเวลาตอบสนอง (Consistency): ${consPct.toFixed(0)}% — ${consText}`);
   }
 
-  // ---------- 4. Mean reaction time เทียบช่วงอายุ ----------
   if (r.avgReactionTimeMs){
     const rtMs = r.avgReactionTimeMs;
     const rtText = rtMs <= 350 ? 'เร็วกว่าค่าเฉลี่ยทั่วไปของช่วงอายุนี้'
       : rtMs <= 550 ? 'อยู่ในช่วงที่พบได้ทั่วไปของช่วงอายุนี้'
       : rtMs <= 750 ? 'ช้ากว่าค่าเฉลี่ยทั่วไปของช่วงอายุนี้เล็กน้อย'
       : 'ช้ากว่าค่าเฉลี่ยทั่วไปของช่วงอายุนี้ค่อนข้างมาก';
-    lines.push(`▸ เวลาตอบสนองเฉลี่ย (Mean RT): ${Math.round(rtMs)} ms (เร็วสุด ${r.minReactionTimeMs ?? '-'} ms / ช้าสุด ${r.maxReactionTimeMs ?? '-'} ms) — ${rtText} หมายเหตุ: งานวิจัยพบว่าเวลาตอบสนองเฉลี่ยเพียงอย่างเดียวเป็นตัวชี้วัดที่มีความจำเพาะต่ำที่สุดเมื่อเทียบกับตัวแปรอื่น ควรดูประกอบกับความสม่ำเสมอด้านบนมากกว่าดูเดี่ยว ๆ`);
+    lines.push(`▸ เวลาตอบสนองเฉลี่ย (Mean RT): ${Math.round(rtMs)} ms — ${rtText}`);
   }
 
-  // ---------- 5. Vigilance trend (ครึ่งแรก vs ครึ่งหลัง) ----------
   const trend = computeVigilanceTrend(r.attempts || []);
   if (trend){
     const dropPct = trend.drop * 100;
     let trendText;
     if (dropPct > 20){
-      trendText = `ลดลงชัดเจนจาก ${(trend.firstRate*100).toFixed(0)}% เหลือ ${(trend.secondRate*100).toFixed(0)}% (ลดลง ${dropPct.toFixed(0)} จุด) — ถือว่าลดลงมากกว่าที่มักพบทั่วไป`;
+      trendText = `ลดลงชัดเจนจาก ${(trend.firstRate*100).toFixed(0)}% เหลือ ${(trend.secondRate*100).toFixed(0)}%`;
     } else if (dropPct > 8){
-      trendText = `ลดลงจาก ${(trend.firstRate*100).toFixed(0)}% เหลือ ${(trend.secondRate*100).toFixed(0)}% (ลดลง ${dropPct.toFixed(0)} จุด) — เป็นการลดลงระดับที่พบได้ทั่วไปเมื่อทำกิจกรรมต่อเนื่องนาน ๆ`;
+      trendText = `ลดลงเล็กน้อยตามธรรมชาติของการทำกิจกรรมต่อเนื่อง`;
     } else if (dropPct >= -8){
-      trendText = `ใกล้เคียงกันระหว่างครึ่งแรก (${(trend.firstRate*100).toFixed(0)}%) และครึ่งหลัง (${(trend.secondRate*100).toFixed(0)}%) ไม่พบสัญญาณความล้าที่ชัดเจนในรอบนี้`;
+      trendText = `ใกล้เคียงกันตลอดการทดสอบ ไม่พบสัญญาณความล้าชัดเจน`;
     } else {
-      trendText = `ครึ่งหลัง (${(trend.secondRate*100).toFixed(0)}%) สูงกว่าครึ่งแรก (${(trend.firstRate*100).toFixed(0)}%) อาจสะท้อนว่าเริ่มคุ้นเคยกับจังหวะการทดสอบมากขึ้นเมื่อเวลาผ่านไป`;
+      trendText = `ครึ่งหลังทำได้ดีกว่าครึ่งแรก อาจเป็นเพราะเริ่มคุ้นเคยกับจังหวะ`;
     }
-    lines.push(`▸ แนวโน้มเมื่อเวลาผ่านไป (Vigilance Trend): ${trendText} รูปแบบนี้เรียกว่า "ประสิทธิภาพลดลงเมื่อเวลาผ่านไป" ซึ่งเป็นปรากฏการณ์ที่พบได้ในคนทั่วไป ไม่ใช่ตัวบ่งชี้เฉพาะของภาวะใดภาวะหนึ่ง`);
-  }
-
-  // ---------- 5. Gaze stability (ถ้ามีข้อมูลจากกล้อง) ----------
-  if (r.gazeStability !== null){
-    const gazePct = r.gazeStability * 100;
-    const gazeText = bandText(gazePct, [
-      { min: 80, text: 'เสถียรมาก การมองตามจุดเคลื่อนที่ค่อนข้างนิ่งตลอดการทดสอบ' },
-      { min: 60, text: 'เสถียรดี มีความเบี่ยงเบนเล็กน้อยซึ่งพบได้ทั่วไป' },
-      { min: 40, text: 'เบี่ยงเบนปานกลาง การมองตามเป้าหมายมีการหลุดโฟกัสอยู่บ้าง' },
-      { min: 20, text: 'เบี่ยงเบนค่อนข้างมาก การมองตามเป้าหมายไม่ค่อยนิ่ง' },
-      { min: 0,  text: 'เบี่ยงเบนมาก การมองตามเป้าหมายไม่นิ่งตลอดการทดสอบ' }
-    ]);
-    lines.push(`▸ ความเสถียรของการมองตามเป้าหมาย (Gaze Stability, จากกล้อง): ${gazePct.toFixed(0)}% — ${gazeText} ค่านี้ประมาณจากตำแหน่งม่านตาเทียบกับมุมตา ไม่ใช่การวัดตำแหน่งการมองบนจอแบบสอบเทียบจริง จึงเป็นเพียงตัวประมาณคร่าว ๆ`);
-  }
-
-  // ---------- 6. Head pose stability (ถ้ามีข้อมูลจากกล้อง) ----------
-  if (r.headPoseStability !== null){
-    const headPct = r.headPoseStability * 100;
-    const headText = bandText(headPct, [
-      { min: 80, text: 'นิ่งมาก แทบไม่ขยับศีรษะตลอดการทดสอบ' },
-      { min: 60, text: 'นิ่งดี มีการขยับเล็กน้อยตามธรรมชาติ' },
-      { min: 40, text: 'ขยับปานกลาง มีการเคลื่อนไหวศีรษะให้เห็นเป็นระยะ' },
-      { min: 20, text: 'ขยับค่อนข้างมาก ศีรษะเคลื่อนไหวบ่อยระหว่างทำแบบทดสอบ' },
-      { min: 0,  text: 'ขยับมาก ศีรษะเคลื่อนไหวตลอดเวลาระหว่างทำแบบทดสอบ' }
-    ]);
-    lines.push(`▸ ความนิ่งของศีรษะ (Head Pose Stability, จากกล้อง): ${headPct.toFixed(0)}% — ${headText} งานวิจัยด้านการเคลื่อนไหว (actigraphy) มักเชื่อมโยงการเคลื่อนไหวที่มากกว่าปกติกับรูปแบบการอยู่ไม่นิ่ง แต่ค่านี้วัดจากกล้องตัวเดียวไม่มีการสอบเทียบ จึงเป็นตัวประมาณคร่าว ๆ เช่นกัน`);
-  }
-
-  // ---------- 7. Blink rate (ข้อมูลเสริม ไม่ตัดสิน ไม่คิดคะแนน) ----------
-  if (r.blinkRatePerMin !== null){
-    lines.push(`▸ อัตราการกระพริบตา (Blink Rate, ข้อมูลเสริม): ${r.blinkRatePerMin.toFixed(1)} ครั้ง/นาที — ค่านี้แสดงไว้เป็นข้อมูลเสริมเท่านั้น งานวิจัยพบว่าอัตราการกระพริบตาเกี่ยวข้องกับการทำงานของโดปามีนในสมองจริง แต่ทิศทางของผล (สูงกว่า/ต่ำกว่าปกติ) ในกลุ่มที่มีปัญหาด้านสมาธิยังไม่ตรงกันในแต่ละงานวิจัย จึง${'ไม่นำค่านี้ไปคิดรวมในคะแนน'}`);
-  }
-
-  // ---------- ปิดท้าย ----------
-  if (r.pattern.tier === 'ok'){
-    lines.push('สรุป: ค่าทั้งหมดข้างต้นอยู่ในช่วงที่ไม่โดดเด่นเป็นพิเศษเมื่อเทียบกัน แต่ทุกค่ายังคงเป็นเพียงข้อมูลจากการทดสอบต้นแบบรอบเดียว ไม่ใช่ผลการประเมินโดยแพทย์หรือนักจิตวิทยา และไม่ควรใช้สรุปภาวะใด ๆ ด้วยตัวเอง');
-  } else if (r.pattern.tier === 'watch'){
-    lines.push('สรุป: มีบางค่าข้างต้นที่ต่างจากค่าที่มักพบทั่วไปอยู่บ้าง แนะนำให้ลองทำแบบทดสอบซ้ำอีก 1-2 รอบในวันหรือเวลาที่ต่างกัน เพื่อดูว่ารูปแบบเดิมเกิดขึ้นซ้ำหรือไม่ ทั้งหมดนี้ยังไม่ใช่การวินิจฉัยหรือการประเมินโดยแพทย์แต่อย่างใด');
-  } else {
-    lines.push('สรุป: มีหลายค่าข้างต้นที่ต่างจากค่าที่มักพบทั่วไปพร้อมกัน หากรูปแบบเหล่านี้เกิดขึ้นซ้ำหลายรอบ หรือส่งผลกระทบต่อการเรียน/การทำงานในชีวิตจริง แนะนำให้ปรึกษาแพทย์หรือนักจิตวิทยาเพื่อประเมินอย่างละเอียดต่อไป — ข้อความนี้ยังคงเป็นเพียงการอธิบายรูปแบบตัวเลข ไม่ใช่การวินิจฉัยทางการแพทย์');
+    lines.push(`▸ แนวโน้มเมื่อเวลาผ่านไป (Vigilance Trend): ${trendText}`);
   }
 
   return lines.join('\n\n');
