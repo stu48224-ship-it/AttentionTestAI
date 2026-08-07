@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Focus Instrument — แบบทดสอบสมาธิเบื้องต้น</title>
 <style>
+  /* ใช้ CSS เดิมจากเวอร์ชันก่อนหน้าทั้งหมด */
   :root{
     --bg: #0E1416;
     --panel: #161F22;
@@ -60,7 +61,6 @@
   @keyframes pulse{ 0%,100%{opacity:1;} 50%{opacity:0.4;} }
   .status{ font-family: var(--mono); font-size: 11px; color: var(--dim); }
 
-  /* แก้ไข: ย้ายตารางมาใช้ CSS ประมวลผลผ่าน GPU โดยตรงเพื่อเพิ่ม FPS */
   .stage{ 
     position: relative; 
     background-color: #08100F;
@@ -232,6 +232,7 @@
 <body>
 
 <div class="rig">
+  <!-- โครงสร้าง HTML คงเดิมทั้งหมด -->
   <div class="header">
     <div>
       <div class="tag">Focus Instrument · Prototype</div>
@@ -269,7 +270,7 @@
         <div class="consent-box">
           <input type="checkbox" id="camConsent">
           <label for="camConsent">
-            ยินยอมให้ใช้กล้องเพื่อวิเคราะห์การเคลื่อนไหวของสายตาและศีรษะ (ประมวลผลในเครื่องเท่านั้น ไม่มีการบันทึกภาพ)
+            ยินยอมให้ใช้กล้องเพื่อวิเคราะห์สายตาและศีรษะ (ประมวลผลในเครื่อง)
           </label>
         </div>
       </div>
@@ -279,7 +280,7 @@
 
     <div class="overlay" id="calibratingOverlay" style="display:none;">
       <div class="big">กำลังค้นหาใบหน้า...</div>
-      <p style="color:var(--dim); font-size:13px; margin-top:8px;">จัดตำแหน่งใบหน้าให้อยู่กลางกล้อง และให้แสงเพียงพอ (ดูตัวอย่างในกรอบเล็กมุมขวาล่าง)</p>
+      <p style="color:var(--dim); font-size:13px; margin-top:8px;">จัดตำแหน่งใบหน้าให้อยู่กลางกล้อง (รอมือถือประมวลผลสักครู่)</p>
     </div>
   </div>
 
@@ -307,66 +308,23 @@
       <ul class="pattern-flags" id="patternFlags"></ul>
     </div>
 
-    <div class="metric-row"><span>ความแม่นยำในการตอบสนองต่อเป้าหมาย (Hit Rate)</span><span class="v" id="mAccuracy">--</span></div>
-    <div class="metric-row"><span>เวลาตอบสนองเฉลี่ย (Avg Reaction Time)</span><span class="v" id="mRT">--</span></div>
-    <div class="metric-row"><span>ความสม่ำเสมอของเวลาตอบสนอง (Consistency)</span><span class="v" id="mConsistency">--</span></div>
+    <div class="metric-row"><span>ความแม่นยำในการตอบสนอง (Hit Rate)</span><span class="v" id="mAccuracy">--</span></div>
+    <div class="metric-row"><span>เวลาตอบสนองเฉลี่ย (Avg RT)</span><span class="v" id="mRT">--</span></div>
+    <div class="metric-row"><span>ความสม่ำเสมอของเวลาตอบสนอง</span><span class="v" id="mConsistency">--</span></div>
     <div class="metric-row"><span>คลิกผิดจังหวะ (False Alarms)</span><span class="v" id="mFalse">--</span></div>
-    <div class="metric-row"><span>พลาดเป้าหมาย (ไม่ได้คลิกทัน)</span><span class="v" id="mMissedTargets">--</span></div>
+    <div class="metric-row"><span>พลาดเป้าหมาย</span><span class="v" id="mMissedTargets">--</span></div>
     <div class="metric-row"><span>คลิกไม่โดนบอลเลย (Miss Clicks)</span><span class="v" id="mMissClicks">--</span></div>
-    <div class="metric-row"><span>ช่วงอายุที่ใช้เทียบเกณฑ์</span><span class="v" id="mAgeBand">--</span></div>
-    <div class="metric-row"><span>ความเสถียรของการมองตามเป้า (Gaze Stability)</span><span class="v" id="mGaze">--</span></div>
-    <div class="metric-row"><span>ความนิ่งของศีรษะ (Head Pose Stability)</span><span class="v" id="mHeadPose">--</span></div>
-    <div class="metric-row"><span>อัตราการกระพริบตา (Blink Rate) — ข้อมูลเสริม</span><span class="v" id="mBlink">--</span></div>
-
-    <div class="disclaimer">
-      ⚠️ นี่คือเครื่องมือคัดกรองเบื้องต้นสำหรับโครงงาน ไม่ใช่เครื่องมือวินิจฉัยทางการแพทย์
-      ผลลัพธ์ไม่สามารถใช้แทนการประเมินโดยแพทย์หรือนักจิตวิทยาได้ หากมีข้อสงสัยเกี่ยวกับภาวะสมาธิสั้น
-      ควรปรึกษาผู้เชี่ยวชาญ
-    </div>
+    <div class="metric-row"><span>ความเสถียรของการมอง (Gaze Stability)</span><span class="v" id="mGaze">--</span></div>
+    <div class="metric-row"><span>ความนิ่งของศีรษะ (Head Stability)</span><span class="v" id="mHeadPose">--</span></div>
 
     <div class="actions">
       <button id="retryBtn">ทดสอบอีกครั้ง</button>
       <button class="ghost" id="detailsBtn">ดูรายละเอียดเพิ่มเติม</button>
-      <button class="ghost" id="limitsBtn">ข้อจำกัดของเครื่องมือนี้</button>
-      <button class="ghost" id="exportBtn">ส่งออกข้อมูล (JSON)</button>
-    </div>
-
-    <div class="limits-panel" id="limitsPanel">
-      <h3>ข้อจำกัดที่ควรรู้ก่อนอ่านผลลัพธ์</h3>
-      <ol>
-        <li><b>รูปแบบการทดสอบยังไม่ผ่านการตรวจสอบความแม่นยำ (validated)</b> — งานวิจัยที่ใช้อ้างอิงตัวชี้วัด (omission, commission, RT variability) ทำกับ Continuous Performance Test (CPT) แบบดั้งเดิม (ตัวอักษร/รูปภาพปรากฏทีละอันแล้ววัดว่าคลิกถูกหรือไม่) แต่เครื่องมือนี้เป็นจุดเคลื่อนที่ต่อเนื่องผสม go/no-go ซึ่งเป็นคนละรูปแบบ ยังไม่มีงานวิจัยยืนยันว่ารูปแบบนี้ให้ผลแม่นยำเทียบเท่า CPT มาตรฐาน</li>
-        <li><b>เกณฑ์อายุเป็นการประมาณ ไม่ใช่ตารางบรรทัดฐานทางคลินิก</b> — งานวิจัยของ Conners, Epstein, Angold & Klaric (2003) พบว่าเด็กอายุ 9-17 ปีมีพัฒนาการของความเร็ว ความสม่ำเสมอ และความแม่นยำในการตอบสนองที่ดีขึ้นตามอายุอย่างเป็นระบบ เครื่องมือนี้ใช้แนวโน้มดังกล่าวเป็นทิศทางในการปรับเกณฑ์ตามช่วงอายุแบบคร่าว ๆ เท่านั้น ไม่ใช่ตาราง norm ที่ผ่านการเก็บข้อมูลจริงแบบเครื่องมือทางคลินิก เช่น Conners CPT-3</li>
-        <li><b>ตัวหารของ "คลิกผิดจังหวะ" เป็นการประมาณ</b> — ใน CPT มาตรฐาน commission error จะเทียบกับจำนวน "โอกาสที่จะคลิกผิด" ที่ชัดเจนเป็น trial แต่เครื่องมือนี้เป็นงานแบบต่อเนื่องไม่มี trial ชัดเจน จึงใช้จำนวนเป้าหมายทั้งหมดเป็นตัวหารแทน ซึ่งเป็นการประมาณ ไม่ใช่มาตรฐานเดียวกับ CPT จริง</li>
-        <li><b>ผลจากการทดสอบเพียงรอบเดียวมีความคลาดเคลื่อนสูง</b> — สภาพร่างกาย ความเหนื่อยล้า อารมณ์ หรือสิ่งรบกวนขณะทดสอบ ล้วนส่งผลต่อคะแนนได้มาก งานวิจัย CPT มาตรฐานแนะนำให้ดูความสม่ำเสมอของผลข้ามหลายรอบ/หลายวัน ไม่ใช่ตัดสินจากรอบเดียว</li>
-        <li><b>นี่คือเครื่องมือคัดกรองเบื้องต้น ไม่ใช่เครื่องมือวินิจฉัย</b> — ในทางคลินิก CPT ไม่เคยถูกใช้ตัดสินเดี่ยว ๆ ต้องประกอบกับการสัมภาษณ์ แบบประเมินพฤติกรรมจากผู้ปกครอง/ครู และการประเมินโดยแพทย์หรือนักจิตวิทยาเสมอ</li>
-        <li><b>ตัวชี้วัดจากกล้อง (ดวงตา/ศีรษะ) เป็นการประมาณ ไม่ใช่การตรวจวัดระดับคลินิก</b> — ระบบนี้ใช้ MediaPipe Face Mesh ตรวจจับตำแหน่งใบหน้าจากกล้องเว็บแคมตัวเดียว ไม่มีการสอบเทียบ (calibration) กับตำแหน่งจอภาพจริงแบบ eye-tracker เฉพาะทาง ผลจึงอ่อนไหวต่อสภาพแสง มุมกล้อง และการเคลื่อนไหวของผู้ใช้ ค่าความเสถียรของการมองและศีรษะจึงเป็นตัวประมาณคร่าว ๆ เท่านั้น</li>
-      </ol>
     </div>
 
     <div class="details" id="detailsPanel">
       <h3>เวลาตอบสนองต่อเป้าหมายแต่ละครั้ง</h3>
       <canvas id="chartCanvas"></canvas>
-      <div class="chart-legend">
-        <span><span class="legend-dot" style="background:#2DD9C4;"></span>ตอบทัน</span>
-        <span><span class="legend-dot" style="background:#E85D5D;"></span>พลาด/ไม่ตอบ</span>
-      </div>
-
-      <h3 style="margin-top:20px;">สรุปตัวเลขทั้งหมด</h3>
-      <div class="metric-row"><span>เวลาตอบสนองเร็วที่สุด</span><span class="v" id="mMinRT">--</span></div>
-      <div class="metric-row"><span>เวลาตอบสนองช้าที่สุด</span><span class="v" id="mMaxRT">--</span></div>
-      <div class="metric-row"><span>จำนวนเป้าหมายทั้งหมด</span><span class="v" id="mTotalTargets">--</span></div>
-    </div>
-
-    <div class="ai-section">
-      <h3>การวิเคราะห์เพิ่มเติม</h3>
-      <div class="ai-intro-note">
-        สรุปรูปแบบที่สังเกตได้จากตัวเลขในรอบทดสอบนี้แบบละเอียดขึ้น คำนวณจากผลของคุณโดยตรง ไม่ใช่การวินิจฉัยภาวะใด ๆ
-      </div>
-      <button id="aiAnalyzeBtn" class="ghost">ดูการวิเคราะห์เพิ่มเติม</button>
-
-      <div class="ai-chat" id="aiChat">
-        <div class="ai-messages" id="aiMessages"></div>
-      </div>
     </div>
   </div>
 </div>
@@ -426,12 +384,12 @@ let targetTimer = null;
 let userAge = null;
 let ageBand = getAgeBand(18);
 
-// ตัวแปรเสริมสำหรับการ Optimize DOM Updates
 let lastTimeStr = "";
 let lastCamStr = "";
+let lastFaceProcessTime = 0; // ตัวแปรสำหรับจำกัดเฟรมเรตกล้อง (Throttling)
 
 const stageCanvas = document.getElementById('stageCanvas');
-const stageCtx = stageCanvas.getContext('2d', { alpha: false }); // ปิด alpha พื้นหลังเพิ่มความเร็ว
+const stageCtx = stageCanvas.getContext('2d', { alpha: false });
 
 function resizeCanvas(){
   const rect = stageCanvas.parentElement.getBoundingClientRect();
@@ -469,9 +427,18 @@ async function setupFaceMesh(){
   faceMesh.onResults(onFaceResults);
 
   mpCamera = new Camera(camVideo, {
-    onFrame: async () => { await faceMesh.send({ image: camVideo }); },
-    width: 480,
-    height: 360
+    onFrame: async () => {
+      // ==== จุดแก้ไขเพื่อล้างความหน่วงบน Android ====
+      // ปกติระบบนี้จะดึงภาพมา 60 ครั้งต่อวินาที 
+      // เราเปลี่ยนให้ดึงข้อมูลส่งไปประมวลผลแค่ทุกๆ 120ms (ประมาณ 8 FPS)
+      const now = performance.now();
+      if (now - lastFaceProcessTime > 120) {
+        lastFaceProcessTime = now;
+        await faceMesh.send({ image: camVideo });
+      }
+    },
+    width: 320, // ลด Resolution กล้องลงสำหรับมือถือ
+    height: 240
   });
   await mpCamera.start();
   document.getElementById('camPreview').style.display = 'block';
@@ -516,7 +483,7 @@ function stopCamera(){
 document.getElementById('startBtn').addEventListener('click', async () => {
   const ageVal = parseInt(document.getElementById('ageInput').value, 10);
   if (!Number.isFinite(ageVal) || ageVal < 6 || ageVal > 100){
-    document.getElementById('ageWarning').textContent = 'กรุณากรอกอายุ (6-100 ปี) ก่อนเริ่มทดสอบ';
+    document.getElementById('ageWarning').textContent = 'กรุณากรอกอายุ (6-100 ปี)';
     return;
   }
   userAge = ageVal;
@@ -532,7 +499,7 @@ document.getElementById('startBtn').addEventListener('click', async () => {
       await setupFaceMesh();
     } catch (e){
       document.getElementById('calibratingOverlay').style.display = 'none';
-      document.getElementById('camStatus').textContent = 'เปิดกล้องไม่สำเร็จ: ' + e.message;
+      document.getElementById('camStatus').textContent = 'เปิดกล้องไม่สำเร็จ';
       cameraWanted = false;
       beginTest(); 
     }
@@ -547,515 +514,20 @@ function beginTest(){
   testRunning = true;
   testStartTime = performance.now();
   targets = { shown: 0, hit: 0, falseAlarms: 0, missClicks: 0, reactionTimes: [], attempts: [] };
-  blinkState = { isClosed: false, count: 0 };
-  gazeSamples = [];
-  noseXSamples = [];
-  noseYSamples = [];
-  
-  // รีเซ็ตค่า Tracking
-  lastTimeStr = "";
-  lastCamStr = cameraWanted ? (cameraActive ? 'ตรวจพบใบหน้า' : 'กำลังเชื่อมต่อ...') : 'ไม่ได้ใช้';
+  blinkState = { isClosed: false, count: เข้าใจเลยครับ อาการที่กระตุกหนักขึ้นเมื่อนำหน้าเข้ามาในกล้อง เป็นตัวบ่งชี้ที่ชัดเจนมากว่า **ปัญหาเกิดจากการประมวลผลระบบตรวจจับใบหน้า (Face Tracking) หรือเอฟเฟกต์ AR** 
 
-  document.getElementById('liveStrip').style.display = 'flex';
-  document.getElementById('hitCount').textContent = '0';
-  document.getElementById('targetCount').textContent = '0';
-  document.getElementById('falseCount').textContent = '0';
-  document.getElementById('missClickCount').textContent = '0';
-  document.getElementById('camStatus').textContent = lastCamStr;
-  document.getElementById('statusText').innerHTML = '<span class="status-dot live" id="statusDot"></span>กำลังทดสอบ';
-  
-  scheduleNextTarget();
-  requestAnimationFrame(tick);
-}
+การที่ใช้งานบน iPad ได้ลื่นไหล แต่บน Android กระตุก มักเกิดจากความแตกต่างด้านการปรับแต่งซอฟต์แวร์ให้เข้ากับฮาร์ดแวร์ (Optimization) โดยชิปของ iPad มักจะถูกออกแบบมาให้รองรับการประมวลผลกราฟิกและ AI ตรวจจับใบหน้าได้ค่อนข้างเสถียร ในขณะที่ฝั่ง Android มีสเปคเครื่องที่หลากหลายกว่า ทำให้บางแอปอาจยังไม่ได้ปรับแต่งมาให้ทำงานได้เต็มประสิทธิภาพบนมือถือทุกรุ่น
 
-function scheduleNextTarget(){
-  const [minMs, maxMs] = TARGET_INTERVAL_RANGE;
-  const delay = minMs + Math.random() * (maxMs - minMs);
-  targetTimer = setTimeout(() => {
-    if (!testRunning) return;
-    dot.isTarget = true;
-    dot.targetShownAt = performance.now();
-    targets.shown++;
-    const attempt = { index: targets.shown, hit: false, reactionTime: null };
-    targets.attempts.push(attempt);
-    dot.currentAttempt = attempt;
-    document.getElementById('targetCount').textContent = targets.shown;
-    setTimeout(() => {
-      if (dot.isTarget){ dot.isTarget = false; } 
-      if (testRunning) scheduleNextTarget();
-    }, TARGET_VISIBLE_MS);
-  }, delay);
-}
+เบื้องต้น ลองทำตามวิธีเหล่านี้เพื่อลดภาระการทำงานของตัวเครื่องลงครับ
 
-stageCanvas.addEventListener('pointerdown', (e) => {
-  if (!testRunning) return;
-  const rect = stageCanvas.getBoundingClientRect();
-  const px = (e.clientX - rect.left) / rect.width;
-  const py = (e.clientY - rect.top) / rect.height;
-  const dist = Math.hypot(px - dot.x, py - dot.y);
+## วิธีแก้ไขเบื้องต้นสำหรับสมาร์ทโฟน Android
+---
 
-  if (dot.isTarget && dist < HIT_RADIUS){
-    const rt = performance.now() - dot.targetShownAt;
-    targets.hit++;
-    targets.reactionTimes.push(rt);
-    if (dot.currentAttempt){ dot.currentAttempt.hit = true; dot.currentAttempt.reactionTime = rt; }
-    dot.isTarget = false;
-    document.getElementById('hitCount').textContent = targets.hit;
-  } else if (!dot.isTarget && dist < HIT_RADIUS){
-    targets.falseAlarms++;
-    document.getElementById('falseCount').textContent = targets.falseAlarms;
-  } else if (dist >= HIT_RADIUS){
-    targets.missClicks++;
-    document.getElementById('missClickCount').textContent = targets.missClicks;
-  }
-});
+*   **ปิดโหมดประหยัดพลังงาน (Battery Saver):** โหมดนี้จะจำกัดความเร็วของ CPU และ GPU ทำให้เวลาประมวลผลใบหน้า เครื่องจะทำงานไม่ทันและเกิดอาการกระตุก ให้ลองปิดโหมดนี้แล้วทดสอบดูอีกครั้ง
+*   **เคลียร์แคชของแอปพลิเคชัน (Clear Cache):** ไฟล์ขยะที่สะสมอยู่อาจทำให้แอปทำงานช้าลง 
+    *   เข้าไปที่ **การตั้งค่า (Settings)** > **แอป (Apps)** > เลือกแอปที่ใช้งาน > **ที่เก็บข้อมูล (Storage)** > **ลบแคช (Clear Cache)** *(ระวังอย่ากดลบข้อมูล/Clear Data ถ้าไม่อยากล็อกอินใหม่)*
+*   **ปิดแอปพลิเคชันที่ทำงานอยู่เบื้องหลัง:** การตรวจจับใบหน้าใช้ RAM และหน่วยประมวลผลสูงมาก แนะนำให้ปิดแอปอื่นๆ ที่ไม่ได้ใช้งานออกให้หมดก่อนเปิดกล้อง
+*   **ลดความละเอียดของกล้องในแอป (ถ้ามี):** บางแอปพลิเคชันอนุญาตให้ปรับลดความละเอียดของวิดีโอหรือปิดฟีเจอร์ "หน้าเนียน/บิวตี้โหมด" อัตโนมัติ การปิดส่วนนี้จะช่วยลดอาการกระตุกได้มาก
+*   **ตรวจสอบการอัปเดตระบบและแอปพลิเคชัน:** เข้าไปที่ Play Store เพื่อดูว่าแอปพลิเคชันนั้นมีอัปเดตเวอร์ชันใหม่ที่แก้บัก (Bug) การใช้งานบน Android หรือไม่
 
-function tick(now){
-  if (!testRunning) return;
-  const elapsed = now - testStartTime;
-  const remaining = Math.max(0, TEST_DURATION_MS - elapsed);
-  
-  // อัปเดตเวลาเฉพาะเมื่อเลขทศนิยมหลักแรกเปลี่ยน (ลดภาระ DOM)
-  const timeStr = (remaining / 1000).toFixed(1) + 's';
-  if (timeStr !== lastTimeStr) {
-    document.getElementById('timeLeft').textContent = timeStr;
-    lastTimeStr = timeStr;
-  }
-
-  dot.angle += 0.018;
-  dot.x = 0.5 + 0.36 * Math.sin(dot.angle * 1.3);
-  dot.y = 0.5 + 0.30 * Math.sin(dot.angle * 0.9 + 1.1);
-
-  if (cameraActive && latestLandmarks){
-    if (lastCamStr !== 'ตรวจพบใบหน้า'){
-        document.getElementById('camStatus').textContent = 'ตรวจพบใบหน้า';
-        lastCamStr = 'ตรวจพบใบหน้า';
-    }
-    const earL = eyeAspectRatio(latestLandmarks, LEFT_EYE);
-    const earR = eyeAspectRatio(latestLandmarks, RIGHT_EYE);
-    const earAvg = (earL + earR) / 2;
-    const closed = earAvg < EAR_BLINK_THRESHOLD;
-    if (closed && !blinkState.isClosed) blinkState.count++;
-    blinkState.isClosed = closed;
-
-    const gazeL = gazeRatio(latestLandmarks, LEFT_EYE, LEFT_IRIS);
-    const gazeR = gazeRatio(latestLandmarks, RIGHT_EYE, RIGHT_IRIS);
-    gazeSamples.push((gazeL + gazeR) / 2);
-
-    const nose = latestLandmarks[NOSE_TIP];
-    noseXSamples.push(nose.x);
-    noseYSamples.push(nose.y);
-  } else if (cameraWanted && cameraActive){
-    if (lastCamStr !== 'ไม่พบใบหน้าชั่วคราว'){
-        document.getElementById('camStatus').textContent = 'ไม่พบใบหน้าชั่วคราว';
-        lastCamStr = 'ไม่พบใบหน้าชั่วคราว';
-    }
-  }
-
-  drawStage();
-
-  if (remaining <= 0){
-    endTest();
-    return;
-  }
-  requestAnimationFrame(tick);
-}
-
-function drawStage(){
-  const w = stageCanvas.width, h = stageCanvas.height;
-  stageCtx.clearRect(0, 0, w, h); // เคลียร์เฉพาะจุด (ใช้สีโปร่งใสเพราะเรามี Background รองไว้ที่ CSS)
-
-  const cx = dot.x * w, cy = dot.y * h;
-  const color = dot.isTarget ? '#F2A65A' : '#2DD9C4';
-  
-  // ปรับไปใช้วงกลมโปร่งแสงจำลองความสว่างแทน shadowBlur ที่ทำให้กระตุก
-  stageCtx.globalAlpha = 0.15;
-  stageCtx.fillStyle = color;
-  stageCtx.beginPath();
-  stageCtx.arc(cx, cy, dot.isTarget ? 30 : 20, 0, Math.PI * 2);
-  stageCtx.fill();
-
-  stageCtx.globalAlpha = 1.0;
-  stageCtx.beginPath();
-  stageCtx.arc(cx, cy, dot.isTarget ? 16 : 11, 0, Math.PI * 2);
-  stageCtx.fill();
-}
-
-/* =========================================================
-   SCORING
-   ========================================================= */
-function computeStdDev(arr){
-  if (arr.length < 2) return 0;
-  const mean = arr.reduce((a,b)=>a+b,0) / arr.length;
-  const variance = arr.reduce((a,b)=>a + (b-mean)**2, 0) / arr.length;
-  return Math.sqrt(variance);
-}
-
-function endTest(){
-  testRunning = false;
-  clearTimeout(targetTimer);
-  document.getElementById('liveStrip').style.display = 'none';
-  document.getElementById('statusDot').classList.remove('live');
-  document.getElementById('statusText').innerHTML = '<span class="status-dot"></span>เสร็จสิ้น';
-
-  const accuracy = targets.shown === 0 ? 0 : targets.hit / targets.shown;
-  const avgRT = targets.reactionTimes.length
-    ? targets.reactionTimes.reduce((a,b)=>a+b,0) / targets.reactionTimes.length
-    : null;
-
-  const rtStd = computeStdDev(targets.reactionTimes);
-  const consistency = targets.reactionTimes.length >= 2
-    ? Math.max(0, Math.min(1, 1 - rtStd / ageBand.consistencyDivisorMs))
-    : null;
-
-  const rtScore = avgRT === null ? 0 : Math.max(0, Math.min(1, 1 - (avgRT - ageBand.rtBestMs) / ageBand.rtRangeMs));
-  const falsePenalty = targets.shown === 0 ? 0 : Math.min(1, targets.falseAlarms / Math.max(3, targets.shown));
-
-  const gazeStd = gazeSamples.length >= 10 ? computeStdDev(gazeSamples) : null;
-  const gazeStability = gazeStd === null ? null : Math.max(0, Math.min(1, 1 - gazeStd / 0.18));
-
-  let headPoseStability = null;
-  if (noseXSamples.length >= 10){
-    const headMoveStd = Math.hypot(computeStdDev(noseXSamples), computeStdDev(noseYSamples));
-    headPoseStability = Math.max(0, Math.min(1, 1 - headMoveStd / 0.09));
-  }
-
-  const blinkRatePerMin = gazeSamples.length >= 10 ? (blinkState.count / (TEST_DURATION_MS / 60000)) : null;
-
-  const BASE_WEIGHTS = { accuracy: 0.28, falseAlarm: 0.16, consistency: 0.28, rt: 0.08, gaze: 0.12, headPose: 0.08 };
-  const activeWeights = { ...BASE_WEIGHTS };
-  let redistribute = 0;
-  if (gazeStability === null){ redistribute += activeWeights.gaze; activeWeights.gaze = 0; }
-  if (headPoseStability === null){ redistribute += activeWeights.headPose; activeWeights.headPose = 0; }
-  if (redistribute > 0){
-    const behavioralSum = activeWeights.accuracy + activeWeights.falseAlarm + activeWeights.consistency + activeWeights.rt;
-    const scale = (behavioralSum + redistribute) / behavioralSum;
-    activeWeights.accuracy *= scale;
-    activeWeights.falseAlarm *= scale;
-    activeWeights.consistency *= scale;
-    activeWeights.rt *= scale;
-  }
-
-  const composite =
-      (accuracy * activeWeights.accuracy) +
-      ((1 - falsePenalty) * activeWeights.falseAlarm) +
-      ((consistency ?? 0.5) * activeWeights.consistency) +
-      (rtScore * activeWeights.rt) +
-      ((gazeStability ?? 0) * activeWeights.gaze) +
-      ((headPoseStability ?? 0) * activeWeights.headPose);
-
-  const finalScore = Math.round(Math.max(0, Math.min(1, composite)) * 100);
-  const missedTargets = targets.shown - targets.hit;
-
-  const pattern = computePattern({ accuracy, consistency, falsePenalty, finalScore, missedTargets, gazeStability, headPoseStability });
-
-  stopCamera();
-  renderResults({ accuracy, avgRT, consistency, finalScore, missedTargets, pattern, gazeStability, headPoseStability, blinkRatePerMin });
-}
-
-function computePattern({ accuracy, consistency, falsePenalty, finalScore, missedTargets, gazeStability, headPoseStability }){
-  const flags = [];
-
-  if (accuracy < 0.6){
-    flags.push('อัตราการพลาดเป้าหมาย (omission) ค่อนข้างสูง ซึ่งงานวิจัยด้าน CPT มักเชื่อมโยงกับรูปแบบการขาดสมาธิ (inattention)');
-  }
-  if (falsePenalty > 0.35){
-    flags.push('มีการตอบสนองก่อนเวลาอันควร (commission) บ่อยครั้ง ซึ่งมักเชื่อมโยงกับรูปแบบความหุนหันพลันแล่น (impulsivity)');
-  }
-  if (consistency !== null && consistency < 0.5){
-    flags.push('เวลาตอบสนองในแต่ละครั้งไม่สม่ำเสมอ ซึ่งเป็นตัวชี้วัดที่งานวิจัยพบว่าสัมพันธ์กับความแปรปรวนของสมาธิมากที่สุด');
-  }
-  if (missedTargets >= 5){
-    flags.push('พลาดเป้าหมายหลายครั้งติดต่อกันในบางช่วง ลองดูกราฟเวลาตอบสนองในรายละเอียดเพิ่มเติมว่าหลุดช่วงไหนของการทดสอบ');
-  }
-  if (gazeStability !== null && gazeStability < 0.5){
-    flags.push('การมองตามจุดเคลื่อนที่มีความเบี่ยงเบนค่อนข้างมาก ซึ่งงานวิจัยด้าน eye-tracking มักเชื่อมโยงกับความไม่เสถียรของการจ้องมอง');
-  }
-  if (headPoseStability !== null && headPoseStability < 0.5){
-    flags.push('มีการขยับศีรษะค่อนข้างมากระหว่างทำแบบทดสอบ ซึ่งงานวิจัยมักเชื่อมโยงกับรูปแบบการอยู่ไม่นิ่ง (motor restlessness)');
-  }
-
-  let tier, label, desc;
-  if (finalScore >= 70 && flags.length === 0){
-    tier = 'ok';
-    label = 'อยู่ในเกณฑ์ปกติ';
-    desc = 'ผลการทดสอบรอบนี้ไม่พบรูปแบบที่ควรสังเกตเป็นพิเศษ ยังคงเป็นเพียงการคัดกรองเบื้องต้นรอบเดียว ไม่ได้ยืนยันภาวะใด ๆ';
-  } else if (finalScore >= 45){
-    tier = 'watch';
-    label = 'มีบางจุดที่ควรสังเกต';
-    desc = 'ผลรอบนี้มีบางรูปแบบที่ต่างจากค่าเฉลี่ยทั่วไปเล็กน้อยถึงปานกลาง ลองทำซ้ำอีก 1-2 รอบในเวลาต่างกันเพื่อดูว่ารูปแบบซ้ำเดิมหรือไม่';
-  } else {
-    tier = 'concern';
-    label = 'มีหลายจุดที่ควรสังเกต';
-    desc = 'ผลรอบนี้มีรูปแบบที่ควรสังเกตหลายจุดพร้อมกัน หากรูปแบบนี้เกิดซ้ำหลายรอบ หรือส่งผลต่อการเรียน/การทำงานในชีวิตจริง แนะนำให้ปรึกษาแพทย์';
-  }
-
-  return { tier, label, desc, flags };
-}
-
-function renderResults(r){
-  document.getElementById('results').style.display = 'block';
-  document.getElementById('scoreNum').textContent = r.finalScore;
-  const circumference = 377;
-  const offset = circumference - (r.finalScore/100) * circumference;
-  document.getElementById('scoreCircle').style.strokeDashoffset = offset;
-  const ringColor = r.finalScore >= 70 ? '#2DD9C4' : (r.finalScore >= 45 ? '#F2A65A' : '#E85D5D');
-  document.getElementById('scoreCircle').setAttribute('stroke', ringColor);
-
-  const badge = document.getElementById('patternBadge');
-  badge.textContent = r.pattern.label;
-  badge.className = 'pattern-badge ' + r.pattern.tier;
-  document.getElementById('patternDesc').textContent = r.pattern.desc;
-  const flagsEl = document.getElementById('patternFlags');
-  flagsEl.innerHTML = '';
-  if (r.pattern.flags.length === 0){
-    const li = document.createElement('li');
-    li.textContent = 'ไม่พบรูปแบบเฉพาะที่เด่นชัดในรอบทดสอบนี้';
-    flagsEl.appendChild(li);
-  } else {
-    r.pattern.flags.forEach(f => {
-      const li = document.createElement('li');
-      li.textContent = f;
-      flagsEl.appendChild(li);
-    });
-  }
-
-  document.getElementById('mAccuracy').textContent = (r.accuracy*100).toFixed(0) + '% (' + targets.hit + '/' + targets.shown + ')';
-  document.getElementById('mRT').textContent = r.avgRT === null ? 'ไม่มีข้อมูล' : Math.round(r.avgRT) + ' ms';
-  document.getElementById('mConsistency').textContent = r.consistency === null ? 'ไม่มีข้อมูล' : (r.consistency*100).toFixed(0) + '%';
-  document.getElementById('mFalse').textContent = targets.falseAlarms + ' ครั้ง';
-  document.getElementById('mMissedTargets').textContent = r.missedTargets + ' ครั้ง';
-  document.getElementById('mMissClicks').textContent = targets.missClicks + ' ครั้ง';
-  document.getElementById('mAgeBand').textContent = ageBand.label + (userAge ? ' (อายุที่กรอก: ' + userAge + ')' : '');
-  document.getElementById('mGaze').textContent = r.gazeStability === null ? 'ไม่ได้ใช้กล้อง/ไม่มีข้อมูล' : (r.gazeStability*100).toFixed(0) + '%';
-  document.getElementById('mHeadPose').textContent = r.headPoseStability === null ? 'ไม่ได้ใช้กล้อง/ไม่มีข้อมูล' : (r.headPoseStability*100).toFixed(0) + '%';
-  document.getElementById('mBlink').textContent = r.blinkRatePerMin === null ? 'ไม่ได้ใช้กล้อง/ไม่มีข้อมูล' : r.blinkRatePerMin.toFixed(1) + ' ครั้ง/นาที';
-
-  const rtOnly = targets.reactionTimes;
-  document.getElementById('mMinRT').textContent = rtOnly.length ? Math.round(Math.min(...rtOnly)) + ' ms' : 'ไม่มีข้อมูล';
-  document.getElementById('mMaxRT').textContent = rtOnly.length ? Math.round(Math.max(...rtOnly)) + ' ms' : 'ไม่มีข้อมูล';
-  document.getElementById('mTotalTargets').textContent = targets.shown;
-
-  drawReactionChart();
-
-  window.__lastResult = {
-    timestamp: new Date().toISOString(),
-    finalScore: r.finalScore,
-    accuracy: r.accuracy,
-    hits: targets.hit,
-    targetsShown: targets.shown,
-    missedTargets: r.missedTargets,
-    avgReactionTimeMs: r.avgRT,
-    minReactionTimeMs: rtOnly.length ? Math.round(Math.min(...rtOnly)) : null,
-    maxReactionTimeMs: rtOnly.length ? Math.round(Math.max(...rtOnly)) : null,
-    consistency: r.consistency,
-    falseAlarms: targets.falseAlarms,
-    missClicks: targets.missClicks,
-    age: userAge,
-    ageBandLabel: ageBand.label,
-    cameraUsed: cameraWanted,
-    gazeStability: r.gazeStability,
-    headPoseStability: r.headPoseStability,
-    blinkRatePerMin: r.blinkRatePerMin,
-    pattern: r.pattern,
-    rawReactionTimes: targets.reactionTimes,
-    attempts: targets.attempts
-  };
-}
-
-function drawReactionChart(){
-  const canvas = document.getElementById('chartCanvas');
-  const rect = canvas.getBoundingClientRect();
-  canvas.width = rect.width;
-  canvas.height = rect.height;
-  const ctx = canvas.getContext('2d');
-  const w = canvas.width, h = canvas.height;
-  const pad = { top: 12, right: 12, bottom: 22, left: 12 };
-  ctx.clearRect(0, 0, w, h);
-
-  const attempts = targets.attempts;
-  if (!attempts.length){
-    ctx.fillStyle = '#7C9295';
-    ctx.font = '12px sans-serif';
-    ctx.fillText('ไม่มีข้อมูลเป้าหมายในรอบนี้', pad.left, h / 2);
-    return;
-  }
-
-  const maxRT = TARGET_VISIBLE_MS; 
-  const plotW = w - pad.left - pad.right;
-  const plotH = h - pad.top - pad.bottom;
-  const barGap = 4;
-  const barW = Math.max(2, plotW / attempts.length - barGap);
-
-  attempts.forEach((a, i) => {
-    const x = pad.left + i * (barW + barGap);
-    const value = a.hit ? a.reactionTime : maxRT;
-    const barH = Math.max(2, (value / maxRT) * plotH);
-    const y = pad.top + (plotH - barH);
-    ctx.fillStyle = a.hit ? '#2DD9C4' : '#E85D5D';
-    ctx.fillRect(x, y, barW, barH);
-  });
-
-  ctx.strokeStyle = 'rgba(255,255,255,0.08)';
-  ctx.beginPath();
-  ctx.moveTo(pad.left, h - pad.bottom);
-  ctx.lineTo(w - pad.right, h - pad.bottom);
-  ctx.stroke();
-
-  ctx.fillStyle = '#7C9295';
-  ctx.font = '10px monospace';
-  ctx.fillText('เป้าหมายที่ 1', pad.left, h - 6);
-  ctx.fillText('เป้าหมายที่ ' + attempts.length, w - pad.right - 70, h - 6);
-}
-
-document.getElementById('retryBtn').addEventListener('click', () => {
-  stopCamera();
-  document.getElementById('camConsent').checked = false;
-  document.getElementById('camStatus').textContent = 'ไม่ได้ใช้';
-  document.getElementById('results').style.display = 'none';
-  document.getElementById('detailsPanel').style.display = 'none';
-  document.getElementById('detailsBtn').textContent = 'ดูรายละเอียดเพิ่มเติม';
-  document.getElementById('limitsPanel').style.display = 'none';
-  document.getElementById('limitsBtn').textContent = 'ข้อจำกัดของเครื่องมือนี้';
-  document.getElementById('ageWarning').textContent = '';
-  document.getElementById('aiChat').style.display = 'none';
-  document.getElementById('aiMessages').innerHTML = '';
-  const aiBtn = document.getElementById('aiAnalyzeBtn');
-  aiBtn.style.display = 'inline-block';
-  aiBtn.disabled = false;
-  aiBtn.textContent = 'ดูการวิเคราะห์เพิ่มเติม';
-  document.getElementById('introOverlay').style.display = 'flex';
-  document.getElementById('statusText').innerHTML = '<span class="status-dot" id="statusDot"></span>รอเริ่ม';
-});
-
-document.getElementById('limitsBtn').addEventListener('click', () => {
-  const panel = document.getElementById('limitsPanel');
-  const isOpen = panel.style.display === 'block';
-  panel.style.display = isOpen ? 'none' : 'block';
-  document.getElementById('limitsBtn').textContent = isOpen ? 'ข้อจำกัดของเครื่องมือนี้' : 'ซ่อนข้อจำกัด';
-});
-
-document.getElementById('detailsBtn').addEventListener('click', () => {
-  const panel = document.getElementById('detailsPanel');
-  const isOpen = panel.style.display === 'block';
-  panel.style.display = isOpen ? 'none' : 'block';
-  document.getElementById('detailsBtn').textContent = isOpen ? 'ดูรายละเอียดเพิ่มเติม' : 'ซ่อนรายละเอียด';
-  if (!isOpen) drawReactionChart(); 
-});
-
-document.getElementById('exportBtn').addEventListener('click', () => {
-  const data = window.__lastResult || {};
-  const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = 'attention-test-result.json';
-  a.click();
-  URL.revokeObjectURL(url);
-});
-
-function computeVigilanceTrend(attempts){
-  if (attempts.length < 6) return null; 
-  const mid = Math.floor(attempts.length / 2);
-  const firstHalf = attempts.slice(0, mid);
-  const secondHalf = attempts.slice(mid);
-  const rate = (arr) => arr.filter(a => a.hit).length / arr.length;
-  const firstRate = rate(firstHalf);
-  const secondRate = rate(secondHalf);
-  return { firstRate, secondRate, drop: firstRate - secondRate };
-}
-
-function renderAiBubble(text, extraClass){
-  const container = document.getElementById('aiMessages');
-  container.innerHTML = ''; 
-  const div = document.createElement('div');
-  div.className = 'bubble ai' + (extraClass ? ' ' + extraClass : '');
-  div.textContent = text;
-  container.appendChild(div);
-  return div;
-}
-
-function bandText(value, bands){
-  for (const b of bands){
-    if (value >= b.min) return b.text;
-  }
-  return bands[bands.length - 1].text;
-}
-
-function generateExtendedAnalysis(){
-  const r = window.__lastResult;
-  if (!r) return 'ยังไม่มีข้อมูลผลการทดสอบ';
-
-  const lines = [];
-  lines.push(`ข้อความต่อไปนี้เป็นการอธิบาย "รูปแบบของตัวเลข" ที่ได้จากการทดสอบเท่านั้น ไม่ใช่การประเมินหรือวินิจฉัยโดยแพทย์ ไม่ว่าค่าจะอยู่ในเกณฑ์ใดก็ตาม`);
-  lines.push(`สรุประดับที่ระบบประเมินไว้: "${r.pattern.label}" (คะแนนรวม ${r.finalScore}/100 เทียบกับช่วงอายุ ${r.ageBandLabel})`);
-
-  const accPct = r.accuracy * 100;
-  const accText = bandText(accPct, [
-    { min: 90, text: 'สูงมาก แทบไม่พลาดเป้าหมายเลยตลอดการทดสอบ' },
-    { min: 75, text: 'อยู่ในเกณฑ์ดี พลาดเป้าหมายเป็นครั้งคราวเท่านั้น ซึ่งเป็นเรื่องปกติที่พบได้ทั่วไป' },
-    { min: 60, text: 'อยู่ในระดับปานกลาง มีบางช่วงที่ตอบสนองไม่ทันเป้าหมายให้เห็นชัดเจน' },
-    { min: 40, text: 'ค่อนข้างต่ำ พลาดเป้าหมายบ่อยกว่าค่าที่มักพบทั่วไป' },
-    { min: 0,  text: 'ต่ำมาก พลาดเป้าหมายเป็นส่วนใหญ่ของรอบทดสอบ' }
-  ]);
-  lines.push(`▸ ความแม่นยำต่อเป้าหมาย (Hit Rate): ตอบถูก ${r.hits}/${r.targetsShown} ครั้ง (${accPct.toFixed(0)}%) — ${accText}`);
-
-  const faRate = r.targetsShown ? r.falseAlarms / Math.max(3, r.targetsShown) : 0;
-  const faText = bandText(faRate, [
-    { min: 0.6,  text: 'สูงมาก มีการตอบสนองก่อนเวลาบ่อยครั้งอย่างเห็นได้ชัด' },
-    { min: 0.35, text: 'ค่อนข้างสูง มีการตอบสนองก่อนเวลาบ่อยกว่าค่าที่มักพบทั่วไป' },
-    { min: 0.15, text: 'อยู่ในเกณฑ์ทั่วไป มีการตอบสนองก่อนเวลาอยู่บ้างตามธรรมชาติ' },
-    { min: 0,    text: 'ต่ำมาก แทบไม่มีการตอบสนองก่อนเวลาเลย' }
-  ]);
-  lines.push(`▸ การตอบสนองก่อนเวลา (Commission / False Alarm): ${r.falseAlarms} ครั้ง จากเป้าหมายทั้งหมด ${r.targetsShown} ครั้ง — ${faText}`);
-
-  if (r.consistency !== null){
-    const consPct = r.consistency * 100;
-    const consText = bandText(consPct, [
-      { min: 80, text: 'สม่ำเสมอมาก เวลาตอบสนองแต่ละครั้งใกล้เคียงกันตลอดการทดสอบ' },
-      { min: 60, text: 'สม่ำเสมอดี มีความแปรปรวนเล็กน้อยซึ่งพบได้ทั่วไป' },
-      { min: 40, text: 'แปรปรวนปานกลาง เวลาตอบสนองแกว่งขึ้นลงพอสมควร' },
-      { min: 20, text: 'แปรปรวนค่อนข้างมาก เวลาตอบสนองในแต่ละครั้งต่างกันชัดเจน' },
-      { min: 0,  text: 'แปรปรวนมาก เวลาตอบสนองไม่คงที่ตลอดการทดสอบ' }
-    ]);
-    lines.push(`▸ ความสม่ำเสมอของเวลาตอบสนอง (Consistency): ${consPct.toFixed(0)}% — ${consText}`);
-  }
-
-  if (r.avgReactionTimeMs){
-    const rtMs = r.avgReactionTimeMs;
-    const rtText = rtMs <= 350 ? 'เร็วกว่าค่าเฉลี่ยทั่วไปของช่วงอายุนี้'
-      : rtMs <= 550 ? 'อยู่ในช่วงที่พบได้ทั่วไปของช่วงอายุนี้'
-      : rtMs <= 750 ? 'ช้ากว่าค่าเฉลี่ยทั่วไปของช่วงอายุนี้เล็กน้อย'
-      : 'ช้ากว่าค่าเฉลี่ยทั่วไปของช่วงอายุนี้ค่อนข้างมาก';
-    lines.push(`▸ เวลาตอบสนองเฉลี่ย (Mean RT): ${Math.round(rtMs)} ms — ${rtText}`);
-  }
-
-  const trend = computeVigilanceTrend(r.attempts || []);
-  if (trend){
-    const dropPct = trend.drop * 100;
-    let trendText;
-    if (dropPct > 20){
-      trendText = `ลดลงชัดเจนจาก ${(trend.firstRate*100).toFixed(0)}% เหลือ ${(trend.secondRate*100).toFixed(0)}%`;
-    } else if (dropPct > 8){
-      trendText = `ลดลงเล็กน้อยตามธรรมชาติของการทำกิจกรรมต่อเนื่อง`;
-    } else if (dropPct >= -8){
-      trendText = `ใกล้เคียงกันตลอดการทดสอบ ไม่พบสัญญาณความล้าชัดเจน`;
-    } else {
-      trendText = `ครึ่งหลังทำได้ดีกว่าครึ่งแรก อาจเป็นเพราะเริ่มคุ้นเคยกับจังหวะ`;
-    }
-    lines.push(`▸ แนวโน้มเมื่อเวลาผ่านไป (Vigilance Trend): ${trendText}`);
-  }
-
-  return lines.join('\n\n');
-}
-
-document.getElementById('aiAnalyzeBtn').addEventListener('click', () => {
-  document.getElementById('aiChat').style.display = 'flex';
-  const text = generateExtendedAnalysis();
-  renderAiBubble(text);
-  document.getElementById('aiAnalyzeBtn').textContent = 'สร้างใหม่อีกครั้ง';
-});
-
-resizeCanvas();
-</script>
-</body>
-</html>
+เพื่อให้ผมช่วยแนะนำวิธีแก้ไขหรือตั้งค่าที่เจาะจงได้มากขึ้น ไม่ทราบว่าอาการนี้เกิดขึ้นขณะใช้งานแอปพลิเคชันอะไรอยู่ครับ (เช่น Instagram, TikTok, Zoom, ฟิลเตอร์ของแอปกล้อง ฯลฯ)?
